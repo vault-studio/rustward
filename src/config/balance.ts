@@ -3,16 +3,21 @@
 
 export const BALANCE = {
   // === ENEMIGOS ===
+  // NOTA balance: los valores del doc v1 (HP_GROWTH 1.18, DMG_GROWTH 1.12,
+  // BOSS_HP_MULT 12, HEAL 0.08) hacían el primer boss imposible: simulación
+  // headless de 4.311 runs con compra codiciosa → 0 bosses muertos. Con estos
+  // valores (barrido simulado): boss 1 cae en la run 1, cada run mata los
+  // bosses de las pantallas 10 y 20, y el muro queda en el boss de la 30.
   ENEMY_BASE_HP: 12,
-  ENEMY_HP_GROWTH: 1.18, // exponencial por pantalla
+  ENEMY_HP_GROWTH: 1.14, // exponencial por pantalla
   ENEMY_DMG_BASE: 3,
-  ENEMY_DMG_GROWTH: 1.12,
+  ENEMY_DMG_GROWTH: 1.06,
   ENEMY_INTERVAL_MS: 1200,
   ENEMIES_PER_SCREEN: 1,
 
   // === BOSS ===
   BOSS_EVERY: 10, // pantalla múltiplo de N → boss
-  BOSS_HP_MULT: 12, // sobre enemyHP de esa pantalla
+  BOSS_HP_MULT: 4, // sobre enemyHP de esa pantalla
   BOSS_DMG_MULT: 1, // MVP: el boss pega igual que un enemigo normal
   BOSS_REWARD_GOLD_MULT: 5,
 
@@ -32,7 +37,7 @@ export const BALANCE = {
   CRIT_MULT: 2.0,
   EXEC_PER_LEVEL: 0.005, // Ejecución
   EXEC_CAP: 0.5,
-  HEAL_PER_SCREEN_PCT: 0.08, // cura al limpiar pantalla normal
+  HEAL_PER_SCREEN_PCT: 0.12, // cura al limpiar pantalla normal
 
   // === ECONOMÍA ===
   GOLD_BASE: 6,
