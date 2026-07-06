@@ -1,6 +1,21 @@
-import { BgGround, BgMidRuins, BgSkyline } from '../../assets/svg/backgrounds';
+import skyUrl from '../../assets/img/bg-skyline.jpg';
+import ruinsUrl from '../../assets/img/bg-mid-ruins.png';
+import groundUrl from '../../assets/img/bg-ground.png';
 
-// Cada capa duplica su SVG para hacer loop infinito con translateX(-50%).
+// Cada capa repite la imagen en espejo (A, A-invertida, A, A-invertida):
+// el ciclo translateX(-50%) recorre exactamente un periodo y el loop
+// queda sin costuras aunque la imagen no sea tileable.
+function MirrorTrack({ src, className }: { src: string; className: string }) {
+  return (
+    <div className={`layer ${className}`}>
+      <img src={src} alt="" draggable={false} />
+      <img src={src} alt="" draggable={false} className="flip" />
+      <img src={src} alt="" draggable={false} />
+      <img src={src} alt="" draggable={false} className="flip" />
+    </div>
+  );
+}
+
 const ASH = [
   { left: '12%', duration: '7s', delay: '0s' },
   { left: '38%', duration: '9s', delay: '2.2s' },
@@ -11,18 +26,9 @@ const ASH = [
 export default function Background() {
   return (
     <>
-      <div className="layer layer-sky">
-        <BgSkyline />
-        <BgSkyline />
-      </div>
-      <div className="layer layer-mid">
-        <BgMidRuins />
-        <BgMidRuins />
-      </div>
-      <div className="layer layer-ground">
-        <BgGround />
-        <BgGround />
-      </div>
+      <MirrorTrack src={skyUrl} className="layer-sky" />
+      <MirrorTrack src={ruinsUrl} className="layer-mid" />
+      <MirrorTrack src={groundUrl} className="layer-ground" />
       {ASH.map((p, i) => (
         <span
           key={i}

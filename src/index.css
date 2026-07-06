@@ -235,35 +235,41 @@ button {
 .layer {
   position: absolute;
   display: flex;
-  width: 200%;
+  width: max-content;
   pointer-events: none;
   will-change: transform;
 }
 
-.layer svg {
-  width: 50%;
+.layer img {
   height: 100%;
+  width: auto;
   flex: none;
   display: block;
+  -webkit-user-drag: none;
+}
+
+.layer img.flip {
+  transform: scaleX(-1);
 }
 
 .layer-sky {
-  bottom: 32%;
-  height: 46%;
-  opacity: 0.85;
-  animation: scrollx 70s linear infinite;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  animation: scrollx 200s linear infinite;
 }
 
 .layer-mid {
-  bottom: 14%;
-  height: 32%;
-  animation: scrollx 26s linear infinite;
+  bottom: 13%;
+  height: 34%;
+  animation: scrollx 60s linear infinite;
+  filter: brightness(0.9);
 }
 
 .layer-ground {
   bottom: 0;
-  height: 16%;
-  animation: scrollx 10s linear infinite;
+  height: 21%;
+  animation: scrollx 22s linear infinite;
 }
 
 @keyframes scrollx {
@@ -319,7 +325,7 @@ button {
 .char-wrap {
   position: absolute;
   left: 6%;
-  bottom: 7%;
+  bottom: 13%;
   width: clamp(64px, 17vw, 105px);
   z-index: 3;
   animation: bob 0.62s ease-in-out infinite;
@@ -395,7 +401,7 @@ button {
 .enemy-wrap {
   position: absolute;
   right: 8%;
-  bottom: 7%;
+  bottom: 13%;
   width: clamp(64px, 18vw, 115px);
   z-index: 3;
   display: flex;
@@ -411,7 +417,7 @@ button {
 }
 
 .enemy-wrap.drone {
-  bottom: 16%;
+  bottom: 24%;
   animation: dronebob 1.6s ease-in-out infinite;
 }
 
