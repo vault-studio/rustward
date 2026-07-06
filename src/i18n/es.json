@@ -1,0 +1,27 @@
+{
+  "hud": {
+    "screen": "PANTALLA",
+    "gold": "ORO",
+    "emeralds": "ESMERALDAS",
+    "boss": "BOSS"
+  },
+  "upgrades": {
+    "level": "Nv",
+    "attack": "Ataque",
+    "defense": "Defensa",
+    "speed": "Velocidad",
+    "luck": "Suerte",
+    "gold": "Oro",
+    "emerald": "Esmeralda",
+    "execution": "Ejecución"
+  },
+  "death": {
+    "title": "HAS CAÍDO",
+    "screen_reached": "Pantalla alcanzada",
+    "gold_earned": "Oro conseguido",
+    "emeralds_earned": "Esmeraldas ganadas",
+    "time": "Tiempo",
+    "best": "Récord",
+    "retry": "REINTENTAR"
+  }
+}

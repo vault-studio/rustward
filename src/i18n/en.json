@@ -1,0 +1,27 @@
+{
+  "hud": {
+    "screen": "SCREEN",
+    "gold": "GOLD",
+    "emeralds": "EMERALDS",
+    "boss": "BOSS"
+  },
+  "upgrades": {
+    "level": "Lv",
+    "attack": "Attack",
+    "defense": "Defense",
+    "speed": "Speed",
+    "luck": "Luck",
+    "gold": "Gold",
+    "emerald": "Emerald",
+    "execution": "Execute"
+  },
+  "death": {
+    "title": "YOU FELL",
+    "screen_reached": "Screen reached",
+    "gold_earned": "Gold earned",
+    "emeralds_earned": "Emeralds earned",
+    "time": "Time",
+    "best": "Best",
+    "retry": "RETRY"
+  }
+}

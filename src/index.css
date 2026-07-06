@@ -1,0 +1,706 @@
+/* RUSTWARD — estética post-apocalíptico industrial. Mobile-first. */
+:root {
+  --carbon: #16130f;
+  --concrete: #2a2620;
+  --rust: #c9621e;
+  --rust-light: #e08a2b;
+  --amber: #f0b23c;
+  --emerald: #3fbf7f;
+  --emerald-dark: #1f6b4a;
+  --bone: #d8cbb4;
+  --hazard-yellow: #e4b23c;
+  --font-title: 'Oswald', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Space Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--carbon);
+  color: var(--bone);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button {
+  font-family: inherit;
+  touch-action: manipulation;
+}
+
+/* ============ LAYOUT: HUD arriba / stage flexible / mejoras abajo ============ */
+.game-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* fallback */
+  height: 100dvh;
+  position: relative;
+  background: var(--carbon);
+}
+
+@media (min-width: 700px) {
+  .game-root {
+    max-width: 560px;
+    margin: 0 auto;
+    border-left: 2px solid #3a332a;
+    border-right: 2px solid #3a332a;
+  }
+}
+
+/* ============ HUD ============ */
+.hud {
+  flex: none;
+  position: relative;
+  padding: 8px 10px 8px;
+  padding-top: calc(8px + env(safe-area-inset-top));
+  background: linear-gradient(#221e17, #1a1610);
+  border-bottom: 1px solid #3a332a;
+}
+
+.hud::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 4px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--carbon) 0 8px,
+    var(--hazard-yellow) 8px 16px
+  );
+  opacity: 0.55;
+  z-index: 2;
+}
+
+.hud-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-screen {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-family: var(--font-title);
+}
+
+.hud-screen-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--rust-light);
+}
+
+.hud-screen-num {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--amber);
+  text-shadow: 0 0 12px rgba(240, 178, 60, 0.35);
+}
+
+.hud-boss-progress {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.hud-boss-progress.is-boss {
+  color: var(--rust-light);
+  opacity: 1;
+  font-weight: 700;
+  animation: bosspulse 0.8s ease-in-out infinite;
+}
+
+@keyframes bosspulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.hud-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-currency {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.hud-currency.gold {
+  color: var(--amber);
+}
+
+.hud-currency.emerald {
+  color: var(--emerald);
+}
+
+.lang-btn {
+  min-width: 40px;
+  min-height: 30px;
+  background: #2c2620;
+  color: var(--bone);
+  border: 1px solid #4a4034;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lang-btn:active {
+  border-color: var(--rust);
+}
+
+/* ============ BARRAS DE VIDA ============ */
+.hpbar {
+  position: relative;
+  height: 16px;
+  background: #191510;
+  border: 1px solid #3a332a;
+  overflow: hidden;
+}
+
+.hpbar-fill {
+  height: 100%;
+  transition: width 0.12s linear;
+}
+
+.hpbar.player {
+  margin-top: 8px;
+}
+
+.hpbar.player .hpbar-fill {
+  background: linear-gradient(90deg, var(--emerald-dark), var(--emerald));
+}
+
+.hpbar-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--bone);
+  text-shadow: 0 1px 2px #000;
+}
+
+.hpbar.enemy {
+  width: 90%;
+  height: 8px;
+}
+
+.hpbar.enemy .hpbar-fill {
+  background: linear-gradient(90deg, #8a3d10, var(--rust-light));
+}
+
+.hpbar.enemy.boss {
+  width: 100%;
+  height: 14px;
+  border-color: var(--rust);
+}
+
+/* ============ STAGE + PARALLAX ============ */
+.stage {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(#1d1812 0%, #17130d 55%, #120f09 100%);
+  min-height: 0;
+}
+
+.layer {
+  position: absolute;
+  display: flex;
+  width: 200%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.layer svg {
+  width: 50%;
+  height: 100%;
+  flex: none;
+  display: block;
+}
+
+.layer-sky {
+  bottom: 32%;
+  height: 46%;
+  opacity: 0.85;
+  animation: scrollx 70s linear infinite;
+}
+
+.layer-mid {
+  bottom: 14%;
+  height: 32%;
+  animation: scrollx 26s linear infinite;
+}
+
+.layer-ground {
+  bottom: 0;
+  height: 16%;
+  animation: scrollx 10s linear infinite;
+}
+
+@keyframes scrollx {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ceniza flotando */
+.ash {
+  position: absolute;
+  top: -4%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--bone);
+  opacity: 0;
+  pointer-events: none;
+  animation-name: ashfloat;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes ashfloat {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translate(-90px, 60vh);
+    opacity: 0;
+  }
+}
+
+/* grano CRT ámbar sutil */
+.crt {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.14) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(240, 178, 60, 0.05) 100%);
+  opacity: 0.55;
+}
+
+/* ============ PERSONAJE ============ */
+.char-wrap {
+  position: absolute;
+  left: 6%;
+  bottom: 7%;
+  width: clamp(64px, 17vw, 105px);
+  z-index: 3;
+  animation: bob 0.62s ease-in-out infinite;
+}
+
+.char-wrap svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.char-svg .leg {
+  transform-origin: 60px 100px;
+}
+
+.char-svg .leg-front {
+  animation: legswing 0.62s ease-in-out infinite alternate;
+}
+
+.char-svg .leg-back {
+  animation: legswing 0.62s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes legswing {
+  from {
+    transform: rotate(-16deg);
+  }
+  to {
+    transform: rotate(16deg);
+  }
+}
+
+.char-svg .scarf {
+  transform-origin: 50px 56px;
+  animation: scarfwave 1.1s ease-in-out infinite;
+}
+
+@keyframes scarfwave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+.char-wrap.dead {
+  animation: none;
+  filter: grayscale(0.8) brightness(0.55);
+}
+
+.char-wrap.dead .leg,
+.char-wrap.dead .scarf {
+  animation: none;
+}
+
+.stage.advancing .char-wrap {
+  transform: translateX(8px);
+}
+
+/* ============ ENEMIGOS ============ */
+.enemy-wrap {
+  position: absolute;
+  right: 8%;
+  bottom: 7%;
+  width: clamp(64px, 18vw, 115px);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.enemy-wrap svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.enemy-wrap.drone {
+  bottom: 16%;
+  animation: dronebob 1.6s ease-in-out infinite;
+}
+
+.enemy-wrap.scavenger {
+  animation: sway 1.4s ease-in-out infinite;
+}
+
+.enemy-wrap.boss {
+  width: clamp(120px, 34vw, 190px);
+  right: 4%;
+  animation: bosssway 2.2s ease-in-out infinite;
+}
+
+@keyframes dronebob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-2px) rotate(-1.5deg);
+  }
+}
+
+@keyframes bosssway {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.drone .rotor {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rotor 0.16s linear infinite;
+}
+
+@keyframes rotor {
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0.22);
+  }
+}
+
+/* ============ NÚMEROS DE DAÑO ============ */
+.dmg-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.dmg {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 14px;
+  text-shadow: 0 1px 3px #000;
+  animation: dmgfloat 0.9s ease-out forwards;
+}
+
+.dmg-normal {
+  color: var(--bone);
+}
+
+.dmg-crit {
+  color: var(--amber);
+  font-size: 19px;
+}
+
+.dmg-exec {
+  color: var(--emerald);
+  font-size: 21px;
+}
+
+.dmg-player {
+  color: #e0522b;
+}
+
+@keyframes dmgfloat {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-46px);
+  }
+}
+
+/* ============ BARRA DE MEJORAS ============ */
+.upgrade-bar {
+  flex: none;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  padding: 10px 6px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  background: #221e17;
+  border-top: 1px solid #3a332a;
+}
+
+.upgrade-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -4px;
+  height: 4px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--carbon) 0 8px,
+    var(--hazard-yellow) 8px 16px
+  );
+  opacity: 0.55;
+}
+
+.upg {
+  min-height: 64px;
+  min-width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 5px 2px;
+  background: #2c2620;
+  border: 1px solid #4a4034;
+  border-radius: 6px;
+  color: var(--bone);
+  cursor: pointer;
+}
+
+.upg:active:not(:disabled) {
+  transform: translateY(1px);
+  background: #3a3229;
+  border-color: var(--rust);
+}
+
+.upg:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.upg-icon {
+  display: flex;
+  color: var(--rust-light);
+}
+
+.upg-name {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 8px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.upg-lvl {
+  font-size: 9px;
+  color: var(--amber);
+}
+
+.upg-cost {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.upg:disabled .upg-cost {
+  color: #8a7f6a;
+}
+
+@media (min-width: 700px) {
+  .upg {
+    min-height: 72px;
+  }
+
+  .upg-name {
+    font-size: 10px;
+  }
+
+  .upg-lvl {
+    font-size: 11px;
+  }
+
+  .upg-cost {
+    font-size: 12px;
+  }
+}
+
+/* ============ PANTALLA DE MUERTE ============ */
+.death-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 12, 9, 0.93);
+}
+
+.death-panel {
+  width: 100%;
+  max-width: 340px;
+  background: #241f19;
+  border: 2px solid #4a4034;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+}
+
+.death-hazard {
+  height: 10px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--carbon) 0 10px,
+    var(--hazard-yellow) 10px 20px
+  );
+  opacity: 0.7;
+}
+
+.death-panel h1 {
+  font-family: var(--font-title);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 5px;
+  color: var(--rust-light);
+  margin: 20px 0 6px;
+}
+
+.death-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 24px 20px;
+}
+
+.death-stats > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.death-stats dt {
+  opacity: 0.7;
+  text-align: left;
+}
+
+.death-stats dd {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.retry-btn {
+  min-height: 48px;
+  min-width: 200px;
+  margin-bottom: 20px;
+  padding: 0 24px;
+  font-family: var(--font-title);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  background: var(--rust);
+  color: var(--carbon);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.retry-btn:active {
+  background: var(--rust-light);
+}
