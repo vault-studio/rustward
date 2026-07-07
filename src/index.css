@@ -416,6 +416,22 @@ button {
   display: block;
 }
 
+.enemy-wrap .sprite {
+  width: 100%;
+  animation: hitflash 0.16s ease-out;
+}
+
+@keyframes hitflash {
+  0% {
+    filter: brightness(2.4) saturate(0.4);
+    transform: translateX(3px);
+  }
+  100% {
+    filter: none;
+    transform: none;
+  }
+}
+
 .enemy-wrap.drone {
   bottom: 24%;
   animation: dronebob 1.6s ease-in-out infinite;
@@ -626,8 +642,8 @@ button {
   }
 }
 
-/* ============ PANTALLA DE MUERTE ============ */
-.death-overlay {
+/* ============ OVERLAYS Y PANELES ============ */
+.overlay {
   position: absolute;
   inset: 0;
   z-index: 10;
@@ -636,9 +652,19 @@ button {
   justify-content: center;
   padding: 20px;
   background: rgba(15, 12, 9, 0.93);
+  animation: fadein 0.25s ease-out;
 }
 
-.death-panel {
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.panel {
   width: 100%;
   max-width: 340px;
   background: #241f19;
@@ -647,7 +673,7 @@ button {
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
 }
 
-.death-hazard {
+.panel-hazard {
   height: 10px;
   background: repeating-linear-gradient(
     45deg,
@@ -657,7 +683,8 @@ button {
   opacity: 0.7;
 }
 
-.death-panel h1 {
+.panel h1,
+.panel-title {
   font-family: var(--font-title);
   font-size: 34px;
   font-weight: 700;
@@ -666,14 +693,19 @@ button {
   margin: 20px 0 6px;
 }
 
-.death-stats {
+.panel-title {
+  font-size: 22px;
+  letter-spacing: 3px;
+}
+
+.panel-stats {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin: 16px 24px 20px;
 }
 
-.death-stats > div {
+.panel-stats > div {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -681,32 +713,301 @@ button {
   font-size: 12px;
 }
 
-.death-stats dt {
+.panel-stats dt {
   opacity: 0.7;
   text-align: left;
 }
 
-.death-stats dd {
+.panel-stats dd {
   color: var(--amber);
   font-weight: 700;
 }
 
-.retry-btn {
-  min-height: 48px;
+.panel-btn {
+  min-height: 46px;
   min-width: 200px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   padding: 0 24px;
   font-family: var(--font-title);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
+  background: #2c2620;
+  color: var(--bone);
+  border: 1px solid #4a4034;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.panel-btn.primary {
   background: var(--rust);
   color: var(--carbon);
   border: none;
-  border-radius: 4px;
+  font-size: 18px;
+  letter-spacing: 3px;
+  min-height: 48px;
+  margin-bottom: 20px;
+}
+
+.panel-btn.primary:active {
+  background: var(--rust-light);
+}
+
+.panel-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.revive-btn {
+  color: var(--emerald);
+  border-color: var(--emerald-dark);
+}
+
+/* ============ TIENDA META ============ */
+.meta-subtitle {
+  font-size: 10px;
+  opacity: 0.65;
+  margin: 0 24px 10px;
+}
+
+.meta-balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--emerald);
+  margin-bottom: 12px;
+}
+
+.meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 14px 16px;
+  max-height: 46dvh;
+  overflow-y: auto;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: #2c2620;
+  border: 1px solid #3a332a;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.meta-icon {
+  display: flex;
+  color: var(--rust-light);
+  flex: none;
+}
+
+.meta-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta-name {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.meta-lvl {
+  color: var(--amber);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.meta-desc {
+  font-size: 9px;
+  opacity: 0.65;
+}
+
+.meta-buy {
+  flex: none;
+  min-height: 44px;
+  min-width: 66px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: var(--emerald-dark);
+  color: #eafff3;
+  border: 1px solid var(--emerald);
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
 }
 
-.retry-btn:active {
-  background: var(--rust-light);
+.meta-buy:active:not(:disabled) {
+  background: var(--emerald);
+  color: var(--carbon);
+}
+
+.meta-buy:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ============ OFFLINE ============ */
+.offline-died {
+  color: var(--rust-light);
+  font-size: 12px;
+  margin: 0 24px 14px;
+}
+
+/* ============ HUD EXTRA ============ */
+.shop-btn {
+  background: #241f19;
+  border: 1px solid var(--emerald-dark);
+  border-radius: 5px;
+  padding: 5px 8px;
+  min-height: 32px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.shop-btn:active {
+  border-color: var(--emerald);
+}
+
+.shop-plus {
+  color: var(--emerald);
+  font-size: 12px;
+  margin-left: 1px;
+}
+
+.icon-btn {
+  min-width: 34px;
+  min-height: 30px;
+  background: #2c2620;
+  border: 1px solid #4a4034;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* ============ BOSS Y JUICE ============ */
+.stage.boss-fight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 70px rgba(201, 98, 30, 0.28);
+}
+
+.boss-banner {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-title);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: var(--rust-light);
+  text-shadow: 0 0 18px rgba(201, 98, 30, 0.7);
+  animation: bossbanner 1s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes bossbanner {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.stage.shake {
+  animation: shake 0.55s ease-in-out;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-6px, 3px);
+  }
+  40% {
+    transform: translate(5px, -3px);
+  }
+  60% {
+    transform: translate(-4px, 2px);
+  }
+  80% {
+    transform: translate(3px, -2px);
+  }
+}
+
+.tap-hint {
+  position: absolute;
+  bottom: 38%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(22, 19, 15, 0.85);
+  border: 1px solid var(--rust);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 11px;
+  color: var(--bone);
+  white-space: nowrap;
+  animation: tappulse 1.6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes tappulse {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 0.95;
+  }
+  50% {
+    transform: translateX(-50%) translateY(-6px);
+    opacity: 0.65;
+  }
+}
+
+/* ============ BOTÓN MODO DE COMPRA ============ */
+.buymode-btn {
+  position: absolute;
+  top: -42px;
+  right: 8px;
+  min-width: 58px;
+  min-height: 34px;
+  background: #241f19;
+  color: var(--amber);
+  border: 1px solid #4a4034;
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 6;
+}
+
+.buymode-btn:active {
+  border-color: var(--rust);
 }

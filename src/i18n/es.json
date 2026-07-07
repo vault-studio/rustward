@@ -22,6 +22,35 @@
     "emeralds_earned": "Esmeraldas ganadas",
     "time": "Tiempo",
     "best": "Récord",
-    "retry": "REINTENTAR"
+    "retry": "REINTENTAR",
+    "revive": "REVIVIR"
+  },
+  "meta": {
+    "title": "MEJORAS PERMANENTES",
+    "subtitle": "Sobreviven a la muerte. Se pagan con esmeraldas.",
+    "close": "CERRAR",
+    "max": "MÁX",
+    "mDamage": "Fuerza",
+    "mDamage_desc": "+10% de daño por nivel",
+    "mHealth": "Vitalidad",
+    "mHealth_desc": "+10% de vida por nivel",
+    "mGold": "Codicia",
+    "mGold_desc": "+10% de oro por nivel",
+    "mStartGold": "Alijo",
+    "mStartGold_desc": "+40 de oro inicial por nivel",
+    "mStartScreen": "Atajo",
+    "mStartScreen_desc": "+1 pantalla inicial por nivel"
+  },
+  "offline": {
+    "title": "MIENTRAS ESTABAS FUERA",
+    "time": "Tiempo simulado",
+    "gold": "Oro ganado",
+    "screens": "Pantallas avanzadas",
+    "emeralds": "Esmeraldas ganadas",
+    "died": "Tu superviviente ha caído luchando.",
+    "ok": "CONTINUAR"
+  },
+  "hints": {
+    "tap": "¡Toca al enemigo para atacar tú también!"
   }
 }

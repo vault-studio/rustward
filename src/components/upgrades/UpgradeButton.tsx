@@ -6,14 +6,22 @@ import { UpgradeIcon } from '../../assets/svg/icons';
 interface Props {
   id: UpgradeId;
   level: number;
+  count: number;
   cost: number;
   canAfford: boolean;
-  onBuy: (id: UpgradeId) => void;
+  onBuy: (id: UpgradeId, count: number) => void;
 }
 
 // Pointer Events: un solo handler para mouse/touch/stylus, y pulsación
 // rápida repetida = varias compras.
-export default function UpgradeButton({ id, level, cost, canAfford, onBuy }: Props) {
+export default function UpgradeButton({
+  id,
+  level,
+  count,
+  cost,
+  canAfford,
+  onBuy,
+}: Props) {
   const t = useT();
   return (
     <button
@@ -21,7 +29,7 @@ export default function UpgradeButton({ id, level, cost, canAfford, onBuy }: Pro
       disabled={!canAfford}
       onPointerDown={(e) => {
         e.preventDefault();
-        onBuy(id);
+        onBuy(id, count);
       }}
       onContextMenu={(e) => e.preventDefault()}
     >

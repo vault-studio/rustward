@@ -5,6 +5,7 @@ import EnemyDroneSvg from '../../assets/svg/EnemyDroneSvg';
 import BossHulkSvg from '../../assets/svg/BossHulkSvg';
 
 // Renderiza enemigo normal o boss con su barra de vida encima.
+// El wrapper .sprite se re-monta con cada cambio de HP → flash de golpe CSS.
 export default function Enemy({ snap }: { snap: Snapshot }) {
   const pct = snap.enemyMaxHP > 0 ? (snap.enemyHP / snap.enemyMaxHP) * 100 : 0;
   return (
@@ -15,13 +16,15 @@ export default function Enemy({ snap }: { snap: Snapshot }) {
           <span className="hpbar-text">{formatNumber(snap.enemyHP)}</span>
         )}
       </div>
-      {snap.enemyKind === 'boss' ? (
-        <BossHulkSvg />
-      ) : snap.enemyKind === 'drone' ? (
-        <EnemyDroneSvg />
-      ) : (
-        <EnemyScavengerSvg />
-      )}
+      <div className="sprite" key={Math.ceil(snap.enemyHP)}>
+        {snap.enemyKind === 'boss' ? (
+          <BossHulkSvg />
+        ) : snap.enemyKind === 'drone' ? (
+          <EnemyDroneSvg />
+        ) : (
+          <EnemyScavengerSvg />
+        )}
+      </div>
     </div>
   );
 }

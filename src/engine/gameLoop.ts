@@ -6,8 +6,11 @@ import {
   emeraldsPerBoss,
   enemyDmg,
   goldPerKill,
+  maxAffordable,
   playerStats,
   upgradeCost,
+  NO_META,
+  type MetaBonuses,
   type PlayerStats,
 } from './formulas';
 import { mitigatedDamage, rollPlayerHit } from './combat';
@@ -39,6 +42,16 @@ export interface Snapshot {
   status: RunStatus;
   runTimeMs: number;
   advancing: boolean;
+  revivedThisRun: boolean;
+}
+
+export interface OfflineSummary {
+  elapsedMs: number;
+  simulatedMs: number;
+  goldGained: number;
+  screensGained: number;
+  emeraldsGained: number;
+  died: boolean;
 }
 
 export interface EngineHooks {
@@ -48,11 +61,20 @@ export interface EngineHooks {
 
 export interface Engine {
   tick(dtMs: number): void;
-  buyUpgrade(id: UpgradeId): boolean;
+  tap(): boolean;
+  buyUpgrade(id: UpgradeId, count?: number): boolean;
+  buyMax(id: UpgradeId): boolean;
+  revive(): boolean;
   reset(): void;
+  setMeta(meta: MetaBonuses): void;
   snapshot(): Snapshot;
   drainEvents(): DamageEvent[];
+  serialize(): string;
+  restore(json: string): boolean;
+  fastForward(elapsedMs: number): OfflineSummary;
 }
+
+const SAVE_VERSION = 1;
 
 const zeroLevels = (): Record<UpgradeId, number> =>
   UPGRADE_IDS.reduce(
@@ -63,6 +85,7 @@ const zeroLevels = (): Record<UpgradeId, number> =>
 export function createEngine(hooks: EngineHooks): Engine {
   let eventId = 0;
   let events: DamageEvent[] = [];
+  let meta: MetaBonuses = NO_META;
 
   let screen = 1;
   let gold = 0;
@@ -70,7 +93,7 @@ export function createEngine(hooks: EngineHooks): Engine {
   let emeraldsRun = 0;
   let kills = 0;
   let levels = zeroLevels();
-  let stats = playerStats(levels);
+  let stats = playerStats(levels, meta);
   let playerHP = stats.maxHP;
   let foe: SpawnedEnemy = spawnForScreen(screen);
   let foeHP = foe.maxHP;
@@ -79,6 +102,8 @@ export function createEngine(hooks: EngineHooks): Engine {
   let attackTimer = 0;
   let enemyTimer = 0;
   let advanceTimer = 0;
+  let lastTapAt = -Infinity;
+  let revivedThisRun = false;
 
   function pushEvent(
     target: 'enemy' | 'player',
@@ -87,6 +112,13 @@ export function createEngine(hooks: EngineHooks): Engine {
   ): void {
     events.push({ id: ++eventId, target, amount, kind });
     if (events.length > 40) events.shift();
+  }
+
+  function refreshStats(): void {
+    const prevMaxHP = stats.maxHP;
+    stats = playerStats(levels, meta);
+    if (stats.maxHP > prevMaxHP) playerHP += stats.maxHP - prevMaxHP;
+    playerHP = Math.min(playerHP, stats.maxHP);
   }
 
   function onFoeKilled(): void {
@@ -117,6 +149,12 @@ export function createEngine(hooks: EngineHooks): Engine {
     enemyTimer = 0;
   }
 
+  function hitFoe(damage: number, kind: DamageKind): void {
+    foeHP -= damage;
+    pushEvent('enemy', damage, kind);
+    if (foeHP <= 0) onFoeKilled();
+  }
+
   function tick(dtMs: number): void {
     if (status !== 'playing') return;
     runTimeMs += dtMs;
@@ -138,12 +176,8 @@ export function createEngine(hooks: EngineHooks): Engine {
       attackTimer -= stats.attackInterval;
       const hit = rollPlayerHit(stats, foe.isBoss);
       const damage = hit.isExec ? foeHP : Math.min(hit.amount, foeHP);
-      foeHP -= damage;
-      pushEvent('enemy', damage, hit.isExec ? 'exec' : hit.isCrit ? 'crit' : 'normal');
-      if (foeHP <= 0) {
-        onFoeKilled();
-        return;
-      }
+      hitFoe(damage, hit.isExec ? 'exec' : hit.isCrit ? 'crit' : 'normal');
+      if (advanceTimer > 0) return; // el golpe mató: avanzando
     }
 
     // Ataques del enemigo.
@@ -160,27 +194,57 @@ export function createEngine(hooks: EngineHooks): Engine {
     }
   }
 
-  function buyUpgrade(id: UpgradeId): boolean {
-    if (status !== 'playing') return false;
-    const cost = upgradeCost(id, levels[id]);
-    if (gold < cost) return false;
-    gold -= cost;
-    levels[id] += 1;
-    const prevMaxHP = stats.maxHP;
-    stats = playerStats(levels);
-    if (stats.maxHP > prevMaxHP) playerHP += stats.maxHP - prevMaxHP;
+  // Toque manual: daño reducido, con rate-limit. Complementa el idle.
+  function tap(): boolean {
+    if (status !== 'playing' || advanceTimer > 0 || foeHP <= 0) return false;
+    const now = runTimeMs;
+    if (now - lastTapAt < B.TAP_MIN_INTERVAL_MS) return false;
+    lastTapAt = now;
+    const hit = rollPlayerHit(stats, foe.isBoss);
+    const base = hit.isExec ? foeHP : Math.min(hit.amount * B.TAP_DMG_PCT, foeHP);
+    hitFoe(base, hit.isExec ? 'exec' : hit.isCrit ? 'crit' : 'normal');
+    return true;
+  }
+
+  function buyUpgrade(id: UpgradeId, count = 1): boolean {
+    if (status !== 'playing' || count < 1) return false;
+    let bought = 0;
+    while (bought < count) {
+      const cost = upgradeCost(id, levels[id]);
+      if (gold < cost) break;
+      gold -= cost;
+      levels[id] += 1;
+      bought += 1;
+    }
+    if (bought === 0) return false;
+    refreshStats();
+    return true;
+  }
+
+  function buyMax(id: UpgradeId): boolean {
+    const count = maxAffordable(id, levels[id], gold);
+    return count > 0 ? buyUpgrade(id, count) : false;
+  }
+
+  function revive(): boolean {
+    if (status !== 'dead' || revivedThisRun) return false;
+    revivedThisRun = true;
+    status = 'playing';
+    playerHP = stats.maxHP;
+    attackTimer = 0;
+    enemyTimer = 0;
     return true;
   }
 
   function reset(): void {
     events = [];
-    screen = 1;
-    gold = 0;
+    screen = 1 + meta.startScreen;
+    gold = meta.startGold;
     goldEarned = 0;
     emeraldsRun = 0;
     kills = 0;
     levels = zeroLevels();
-    stats = playerStats(levels);
+    stats = playerStats(levels, meta);
     playerHP = stats.maxHP;
     foe = spawnForScreen(screen);
     foeHP = foe.maxHP;
@@ -189,6 +253,13 @@ export function createEngine(hooks: EngineHooks): Engine {
     attackTimer = 0;
     enemyTimer = 0;
     advanceTimer = 0;
+    lastTapAt = -Infinity;
+    revivedThisRun = false;
+  }
+
+  function setMeta(next: MetaBonuses): void {
+    meta = next;
+    refreshStats();
   }
 
   function snapshot(): Snapshot {
@@ -208,6 +279,7 @@ export function createEngine(hooks: EngineHooks): Engine {
       status,
       runTimeMs,
       advancing: advanceTimer > 0,
+      revivedThisRun,
     };
   }
 
@@ -217,7 +289,108 @@ export function createEngine(hooks: EngineHooks): Engine {
     return drained;
   }
 
-  return { tick, buyUpgrade, reset, snapshot, drainEvents };
+  // === PERSISTENCIA DE LA RUN (sobrevive a recargar/cerrar el navegador) ===
+  function serialize(): string {
+    return JSON.stringify({
+      v: SAVE_VERSION,
+      savedAt: Date.now(),
+      s: {
+        screen,
+        gold,
+        goldEarned,
+        emeraldsRun,
+        kills,
+        levels,
+        playerHP,
+        foe,
+        foeHP,
+        status,
+        runTimeMs,
+        attackTimer,
+        enemyTimer,
+        advanceTimer,
+        revivedThisRun,
+      },
+    });
+  }
+
+  function restore(json: string): boolean {
+    try {
+      const data = JSON.parse(json);
+      if (data?.v !== SAVE_VERSION || !data.s) return false;
+      const s = data.s;
+      const nums = [s.screen, s.gold, s.goldEarned, s.playerHP, s.foeHP, s.runTimeMs];
+      if (!nums.every((n: unknown) => typeof n === 'number' && Number.isFinite(n)))
+        return false;
+      if (!UPGRADE_IDS.every((id) => typeof s.levels?.[id] === 'number')) return false;
+
+      screen = Math.max(1, Math.floor(s.screen));
+      gold = Math.max(0, s.gold);
+      goldEarned = Math.max(0, s.goldEarned);
+      emeraldsRun = Math.max(0, s.emeraldsRun ?? 0);
+      kills = Math.max(0, s.kills ?? 0);
+      levels = { ...zeroLevels(), ...s.levels };
+      stats = playerStats(levels, meta);
+      foe = s.foe?.kind ? s.foe : spawnForScreen(screen);
+      foeHP = Math.min(Math.max(0, s.foeHP), foe.maxHP);
+      playerHP = Math.min(Math.max(0, s.playerHP), stats.maxHP);
+      status = s.status === 'dead' ? 'dead' : 'playing';
+      runTimeMs = s.runTimeMs;
+      attackTimer = s.attackTimer ?? 0;
+      enemyTimer = s.enemyTimer ?? 0;
+      advanceTimer = s.advanceTimer ?? 0;
+      revivedThisRun = !!s.revivedThisRun;
+      if (status === 'playing' && foeHP <= 0 && advanceTimer <= 0) {
+        foe = spawnForScreen(screen);
+        foeHP = foe.maxHP;
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Simula el tiempo transcurrido con el motor real (sin compras): el
+  // progreso offline es honesto — y sí, la run puede morir mientras no estás.
+  function fastForward(elapsedMs: number): OfflineSummary {
+    const simulatedMs = Math.min(Math.max(0, elapsedMs), B.OFFLINE_CAP_MS);
+    const goldBefore = goldEarned;
+    const screenBefore = screen;
+    const emeraldsBefore = emeraldsRun;
+    const wasAlive = status === 'playing';
+
+    let remaining = simulatedMs;
+    while (remaining > 0 && status === 'playing') {
+      const step = Math.min(remaining, 100);
+      tick(step);
+      remaining -= step;
+    }
+    events = []; // sin lluvia de números de daño al volver
+
+    return {
+      elapsedMs,
+      simulatedMs: simulatedMs - remaining,
+      goldGained: goldEarned - goldBefore,
+      screensGained: screen - screenBefore,
+      emeraldsGained: emeraldsRun - emeraldsBefore,
+      died: wasAlive && status === 'dead',
+    };
+  }
+
+  return {
+    tick,
+    tap,
+    buyUpgrade,
+    buyMax,
+    revive,
+    reset,
+    setMeta,
+    snapshot,
+    drainEvents,
+    serialize,
+    restore,
+    fastForward,
+  };
 }
 
 // Hook rAF: tickea el motor cada frame y commitea a la UI con throttle.

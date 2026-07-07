@@ -22,6 +22,35 @@
     "emeralds_earned": "Emeralds earned",
     "time": "Time",
     "best": "Best",
-    "retry": "RETRY"
+    "retry": "RETRY",
+    "revive": "REVIVE"
+  },
+  "meta": {
+    "title": "PERMANENT UPGRADES",
+    "subtitle": "They survive death. Paid with emeralds.",
+    "close": "CLOSE",
+    "max": "MAX",
+    "mDamage": "Strength",
+    "mDamage_desc": "+10% damage per level",
+    "mHealth": "Vitality",
+    "mHealth_desc": "+10% health per level",
+    "mGold": "Greed",
+    "mGold_desc": "+10% gold per level",
+    "mStartGold": "Stash",
+    "mStartGold_desc": "+40 starting gold per level",
+    "mStartScreen": "Shortcut",
+    "mStartScreen_desc": "+1 starting screen per level"
+  },
+  "offline": {
+    "title": "WHILE YOU WERE AWAY",
+    "time": "Simulated time",
+    "gold": "Gold earned",
+    "screens": "Screens advanced",
+    "emeralds": "Emeralds earned",
+    "died": "Your survivor fell fighting.",
+    "ok": "CONTINUE"
+  },
+  "hints": {
+    "tap": "Tap the enemy to attack too!"
   }
 }
