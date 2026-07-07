@@ -65,6 +65,11 @@ export const BALANCE = {
   ADVANCE_SCROLL_MS: 600, // ráfaga de avance entre pantallas
 } as const;
 
+// === SKINS DEL PERSONAJE ===
+// El aspecto evoluciona con la suma de niveles de las 7 mejoras de la run.
+// Umbral de cada tier (índice = tier). 5 skins en total.
+export const SKIN_TIER_THRESHOLDS = [0, 10, 100, 1000, 10000] as const;
+
 export type UpgradeId =
   | 'attack'
   | 'defense'

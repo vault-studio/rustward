@@ -51,6 +51,7 @@
     "ok": "CONTINUE"
   },
   "hints": {
-    "tap": "Tap the enemy to attack too!"
+    "tap": "Tap the enemy to attack too!",
+    "tier_up": "GEAR UPGRADED!"
   }
 }

@@ -86,4 +86,9 @@ export const sfx = {
     tone(494, 0.12, 'sine', 0.06, undefined, 0.1);
     tone(659, 0.18, 'sine', 0.06, undefined, 0.2);
   },
+  tierUp: () => {
+    tone(392, 0.1, 'square', 0.06);
+    tone(523, 0.1, 'square', 0.06, undefined, 0.09);
+    tone(784, 0.2, 'square', 0.055, undefined, 0.18);
+  },
 };

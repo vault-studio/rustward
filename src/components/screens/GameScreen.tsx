@@ -8,7 +8,7 @@ import {
   type Snapshot,
 } from '../../engine/gameLoop';
 import { BALANCE as B, type UpgradeId } from '../../config/balance';
-import { metaBonuses } from '../../engine/formulas';
+import { metaBonuses, skinTier } from '../../engine/formulas';
 import { useRunStore } from '../../store/useRunStore';
 import { useMetaStore } from '../../store/useMetaStore';
 import { initAudio, setMuted, sfx } from '../../audio/sfx';
@@ -48,10 +48,15 @@ export default function GameScreen() {
   const [offline, setOffline] = useState<OfflineSummary | null>(null);
   const [buyMode, setBuyMode] = useState<BuyMode>(1);
   const [shaking, setShaking] = useState(false);
+  const [charHit, setCharHit] = useState(false);
+  const [tierUpFlash, setTierUpFlash] = useState(false);
 
   const prevStatus = useRef<string>('playing');
   const prevBoss = useRef(false);
   const shakeTimer = useRef(0);
+  const charHitTimer = useRef(0);
+  const prevTier = useRef(0);
+  const tierUpTimer = useRef(0);
 
   const engineRef = useRef<Engine | null>(null);
   if (!engineRef.current) {
@@ -116,6 +121,21 @@ export default function GameScreen() {
       } else if (!snap.isBoss) {
         prevBoss.current = false;
       }
+      // Flash del personaje al recibir daño.
+      if (events.some((ev) => ev.target === 'player')) {
+        setCharHit(true);
+        window.clearTimeout(charHitTimer.current);
+        charHitTimer.current = window.setTimeout(() => setCharHit(false), 200);
+      }
+      // Subida de tier de skin → celebración.
+      const tier = skinTier(snap.levels);
+      if (tier > prevTier.current && snap.status === 'playing') {
+        sfx.tierUp();
+        setTierUpFlash(true);
+        window.clearTimeout(tierUpTimer.current);
+        tierUpTimer.current = window.setTimeout(() => setTierUpFlash(false), 1500);
+      }
+      prevTier.current = tier;
       if (snap.status === 'dead' && prevStatus.current === 'playing') {
         sfx.death();
         useMetaStore.getState().incRuns();
@@ -202,6 +222,13 @@ export default function GameScreen() {
 
   const showTapHint = !tapHintSeen && snap.status === 'playing' && !offline;
 
+  // Tier de skin; ?skin=N permite previsualizar skins en desarrollo.
+  const debugSkin = new URLSearchParams(window.location.search).get('skin');
+  const tier =
+    debugSkin !== null
+      ? Math.max(0, Math.min(4, Number(debugSkin) || 0))
+      : skinTier(snap.levels);
+
   return (
     <div className="game-root" onContextMenu={(e) => e.preventDefault()}>
       <Hud snap={snap} onOpenShop={() => setShopOpen(true)} />
@@ -212,9 +239,15 @@ export default function GameScreen() {
         onPointerDown={handleStageTap}
       >
         <Background />
-        <Character dead={snap.status === 'dead'} />
+        <Character
+          dead={snap.status === 'dead'}
+          tier={tier}
+          hit={charHit}
+          tierUp={tierUpFlash}
+        />
         {!snap.advancing && snap.enemyHP > 0 && <Enemy snap={snap} />}
         <DamageLayer />
+        {tierUpFlash && <div className="tierup-banner">{t('hints.tier_up')}</div>}
         {snap.isBoss && !snap.advancing && snap.status === 'playing' && (
           <div className="boss-banner">☠ {t('hud.boss')}</div>
         )}

@@ -383,6 +383,98 @@ button {
   }
 }
 
+/* flash al recibir daño */
+.char-wrap.hit svg {
+  animation: charhit 0.2s ease-out;
+}
+
+@keyframes charhit {
+  0% {
+    filter: brightness(2.6) sepia(0.6) saturate(3) hue-rotate(-25deg);
+    transform: translateX(-3px);
+  }
+  100% {
+    filter: none;
+    transform: none;
+  }
+}
+
+/* celebración al subir de tier de equipo */
+.char-wrap.tierup svg {
+  animation: tierup 1.4s ease-out;
+}
+
+@keyframes tierup {
+  0% {
+    filter: brightness(3) drop-shadow(0 0 18px rgba(240, 178, 60, 0.9));
+    transform: scale(1.18);
+  }
+  40% {
+    filter: brightness(1.6) drop-shadow(0 0 10px rgba(240, 178, 60, 0.6));
+    transform: scale(1.05);
+  }
+  100% {
+    filter: none;
+    transform: none;
+  }
+}
+
+.tierup-banner {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-title);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--amber);
+  text-shadow: 0 0 16px rgba(240, 178, 60, 0.8);
+  animation: tierbanner 1.5s ease-out forwards;
+  pointer-events: none;
+  z-index: 5;
+  white-space: nowrap;
+}
+
+@keyframes tierbanner {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(14px) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1.06);
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-16px) scale(1);
+  }
+}
+
+/* emisivos del exo (tier 4) */
+.char-wrap.tier-4 svg {
+  filter: drop-shadow(0 0 6px rgba(63, 191, 127, 0.35));
+}
+
+.char-svg .core circle:last-of-type,
+.char-svg .muzzle-glow,
+.char-svg .antenna-light {
+  animation: corepulse 1.6s ease-in-out infinite;
+}
+
+@keyframes corepulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
 .char-wrap.dead {
   animation: none;
   filter: grayscale(0.8) brightness(0.55);

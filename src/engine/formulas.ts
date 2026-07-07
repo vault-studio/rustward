@@ -5,6 +5,8 @@ import {
   COST_GROWTH,
   META_CONFIG,
   META_EFFECT,
+  SKIN_TIER_THRESHOLDS,
+  UPGRADE_IDS,
   type MetaId,
   type UpgradeId,
 } from '../config/balance';
@@ -100,6 +102,24 @@ export function metaCost(id: MetaId, level: number): number {
 export function metaIsMaxed(id: MetaId, level: number): boolean {
   const cfg = META_CONFIG[id];
   return cfg.maxLevel > 0 && level >= cfg.maxLevel;
+}
+
+// === SKINS ===
+export function totalUpgradeLevels(levels: Record<UpgradeId, number>): number {
+  return UPGRADE_IDS.reduce((sum, id) => sum + levels[id], 0);
+}
+
+// Tier de skin (0..4) según la suma de niveles de la run.
+export function skinTier(levels: Record<UpgradeId, number>): number {
+  const total = totalUpgradeLevels(levels);
+  let tier = 0;
+  for (let i = SKIN_TIER_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (total >= SKIN_TIER_THRESHOLDS[i]) {
+      tier = i;
+      break;
+    }
+  }
+  return tier;
 }
 
 // === STATS DEL JUGADOR ===

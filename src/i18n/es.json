@@ -51,6 +51,7 @@
     "ok": "CONTINUAR"
   },
   "hints": {
-    "tap": "¡Toca al enemigo para atacar tú también!"
+    "tap": "¡Toca al enemigo para atacar tú también!",
+    "tier_up": "¡EQUIPO MEJORADO!"
   }
 }
