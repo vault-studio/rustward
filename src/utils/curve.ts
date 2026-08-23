@@ -4,56 +4,18 @@ export interface Point {
   y: number;
 }
 
-// Punto en una curva de Bézier cuadrática (p0→p1 con `control`) en t (0..1).
-export function quadraticBezierPoint(
-  p0: Point,
-  control: Point,
-  p1: Point,
-  t: number,
-): Point {
-  const mt = 1 - t;
-  return {
-    x: mt * mt * p0.x + 2 * mt * t * control.x + t * t * p1.x,
-    y: mt * mt * p0.y + 2 * mt * t * control.y + t * t * p1.y,
-  };
+function dist(a: Point, b: Point): number {
+  return Math.hypot(b.x - a.x, b.y - a.y);
 }
 
-// `count` puntos distribuidos a lo largo de la curva, sin incluir los
-// extremos (t = 1/(count+1) .. count/(count+1)). Espaciado uniforme en el
-// parámetro t, NO en distancia real — en curvas muy dobladas los puntos se
-// amontonan hacia el lado de mayor curvatura. Ver pointsEvenlySpaced.
-export function pointsAlongCurve(
-  p0: Point,
-  control: Point,
-  p1: Point,
-  count: number,
-): Point[] {
-  return Array.from({ length: count }, (_, i) => {
-    const t = (i + 1) / (count + 1);
-    return quadraticBezierPoint(p0, control, p1, t);
-  });
-}
-
-// `count` puntos distribuidos a distancia (longitud de arco) uniforme a lo
-// largo de la curva — para que se "sientan" bien repartidos por el mapa
-// aunque la curva se doble mucho. Muestrea la curva en `samples` pasos,
-// acumula la longitud recorrida y reubica cada punto por interpolación
-// lineal dentro del tramo muestreado donde cae su distancia objetivo.
-export function pointsEvenlySpaced(
-  p0: Point,
-  control: Point,
-  p1: Point,
-  count: number,
-  samples = 60,
-): Point[] {
-  const samplePoints = Array.from({ length: samples + 1 }, (_, i) =>
-    quadraticBezierPoint(p0, control, p1, i / samples),
-  );
+// `count` puntos a distancia (longitud de arco) uniforme a lo largo de una
+// polilínea de N puntos, sin incluir los extremos — para que los puntos se
+// "sientan" bien repartidos por el mapa aunque el camino serpentee mucho,
+// en vez de amontonarse en los tramos con más curvatura.
+export function pointsEvenlySpacedOnPolyline(points: Point[], count: number): Point[] {
   const cumulative = [0];
-  for (let i = 1; i < samplePoints.length; i++) {
-    const dx = samplePoints[i].x - samplePoints[i - 1].x;
-    const dy = samplePoints[i].y - samplePoints[i - 1].y;
-    cumulative.push(cumulative[i - 1] + Math.hypot(dx, dy));
+  for (let i = 1; i < points.length; i++) {
+    cumulative.push(cumulative[i - 1] + dist(points[i - 1], points[i]));
   }
   const total = cumulative[cumulative.length - 1];
 
@@ -64,8 +26,30 @@ export function pointsEvenlySpaced(
     const segStart = cumulative[i];
     const segEnd = cumulative[i + 1];
     const segT = segEnd > segStart ? (targetDist - segStart) / (segEnd - segStart) : 0;
-    const a = samplePoints[i];
-    const b = samplePoints[i + 1];
+    const a = points[i];
+    const b = points[i + 1];
     return { x: a.x + (b.x - a.x) * segT, y: a.y + (b.y - a.y) * segT };
   });
+}
+
+// Convierte una polilínea trazada a mano en un `d` de SVG suavizado
+// (Catmull-Rom → Bézier cúbica) — el camino se ve como una curva fluida en
+// vez de segmentos rectos entre los puntos medidos.
+export function smoothPathD(points: Point[]): string {
+  if (points.length === 0) return '';
+  if (points.length === 1) return '';
+  if (points.length === 2) {
+    return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+  }
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[Math.max(0, i - 1)];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[Math.min(points.length - 1, i + 2)];
+    const c1 = { x: p1.x + (p2.x - p0.x) / 6, y: p1.y + (p2.y - p0.y) / 6 };
+    const c2 = { x: p2.x - (p3.x - p1.x) / 6, y: p2.y - (p3.y - p1.y) / 6 };
+    d += ` C ${c1.x} ${c1.y} ${c2.x} ${c2.y} ${p2.x} ${p2.y}`;
+  }
+  return d;
 }

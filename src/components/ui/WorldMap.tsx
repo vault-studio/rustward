@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { BALANCE as B } from '../../config/balance';
 import { worldAt } from '../../config/worlds';
 import { phaseInWorldOf, phaseScreenRange, worldIndexOf } from '../../engine/formulas';
-import { pointsEvenlySpaced, type Point } from '../../utils/curve';
+import { pointsEvenlySpacedOnPolyline, smoothPathD } from '../../utils/curve';
 import { useT } from '../../i18n';
 import { BossSkullSolid } from '../../assets/svg/icons';
 
@@ -20,15 +20,12 @@ function statusFor(screen: number, currentScreen: number, bestScreen: number): D
   return 'locked';
 }
 
-function quadPath(p0: Point, control: Point, p1: Point): string {
-  return `M ${p0.x} ${p0.y} Q ${control.x} ${control.y} ${p1.x} ${p1.y}`;
-}
-
 // Mapa de mundo: UN mapa pintado con 5 zonas de boss fijas. Solo se dibuja
 // el camino (puntos + línea) de la FASE ACTUAL, hacia el boss al que vas
-// — las otras 4 zonas quedan como iconos de contexto, sin ruta, para no
+// — trazado a mano por Carlos sobre el mapa real (ver config/worlds.ts) —
+// las otras 4 zonas quedan como iconos de contexto, sin ruta, para no
 // saturar el mapa. 100% reutilizable para otros mundos: solo cambian
-// `mapBg`/`zones`/`start`/`pathControls` en config/worlds.ts.
+// `mapBg`/`zones`/`paths` en config/worlds.ts.
 export default function WorldMap({ currentScreen, bestScreen, onClose }: Props) {
   const t = useT();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -40,17 +37,13 @@ export default function WorldMap({ currentScreen, bestScreen, onClose }: Props) 
   const currentPhase = phaseInWorldOf(currentScreen);
   const currentIdx = currentPhase - 1;
 
+  const currentPath = world.paths[currentIdx];
   const currentZone = world.zones[currentIdx];
-  const currentFrom = currentIdx === 0 ? world.start : world.zones[currentIdx - 1];
   const [phaseStartScreen] = phaseScreenRange(worldIdx, currentPhase);
   const bossScreen = phaseStartScreen + B.BOSS_EVERY - 1;
   const pathStatus = statusFor(bossScreen, currentScreen, bestScreen);
-  const waypoints = pointsEvenlySpaced(
-    currentFrom,
-    world.pathControls[currentIdx],
-    currentZone,
-    B.BOSS_EVERY - 1,
-  );
+  const waypoints = pointsEvenlySpacedOnPolyline(currentPath, B.BOSS_EVERY - 1);
+  const worldStart = world.paths[0][0];
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -86,16 +79,13 @@ export default function WorldMap({ currentScreen, bestScreen, onClose }: Props) 
               preserveAspectRatio="none"
               aria-hidden="true"
             >
-              <path
-                d={quadPath(currentFrom, world.pathControls[currentIdx], currentZone)}
-                className={`worldmap-path ${pathStatus}`}
-              />
+              <path d={smoothPathD(currentPath)} className={`worldmap-path ${pathStatus}`} />
             </svg>
 
             {currentIdx === 0 && (
               <span
                 className="worldmap-start"
-                style={{ left: `${world.start.x}%`, top: `${world.start.y}%` }}
+                style={{ left: `${worldStart.x}%`, top: `${worldStart.y}%` }}
               />
             )}
 
