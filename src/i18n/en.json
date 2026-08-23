@@ -1,9 +1,25 @@
 {
   "hud": {
-    "screen": "SCREEN",
+    "world": "WORLD",
+    "phase": "PHASE",
     "gold": "GOLD",
     "emeralds": "EMERALDS",
     "boss": "BOSS"
+  },
+  "worlds": {
+    "rust_belt": "The Rust Belt"
+  },
+  "stats": {
+    "title": "STATS",
+    "damage": "Damage",
+    "speed": "Attacks/sec",
+    "defense": "Damage reduction",
+    "defense_hp": "Max HP",
+    "luck": "Crit",
+    "luck_note": "Critical hit chance (x2 damage)",
+    "execution_note": "One-hit kill chance (doesn't apply to bosses)",
+    "gold_note": "Extra gold per enemy defeated",
+    "emerald_note": "Extra emeralds per boss defeated"
   },
   "upgrades": {
     "level": "Lv",

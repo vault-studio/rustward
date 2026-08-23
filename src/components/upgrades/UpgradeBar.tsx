@@ -1,6 +1,7 @@
 import { UPGRADE_IDS, type UpgradeId } from '../../config/balance';
 import { bulkCost, maxAffordable, upgradeCost } from '../../engine/formulas';
 import type { Snapshot } from '../../engine/gameLoop';
+import { IconCharacterStats } from '../../assets/svg/icons';
 import UpgradeButton from './UpgradeButton';
 
 export type BuyMode = 1 | 10 | 'max';
@@ -10,20 +11,38 @@ interface Props {
   buyMode: BuyMode;
   onCycleBuyMode: () => void;
   onBuy: (id: UpgradeId, count: number) => void;
+  onOpenStats: () => void;
 }
 
-export default function UpgradeBar({ snap, buyMode, onCycleBuyMode, onBuy }: Props) {
+export default function UpgradeBar({
+  snap,
+  buyMode,
+  onCycleBuyMode,
+  onBuy,
+  onOpenStats,
+}: Props) {
   return (
     <nav className="upgrade-bar">
-      <button
-        className="buymode-btn"
-        onPointerDown={(e) => {
-          e.preventDefault();
-          onCycleBuyMode();
-        }}
-      >
-        x{buyMode === 'max' ? 'MAX' : buyMode}
-      </button>
+      <div className="bar-toolbar">
+        <button
+          className="stats-btn"
+          onPointerDown={(e) => {
+            e.preventDefault();
+            onOpenStats();
+          }}
+        >
+          <IconCharacterStats />
+        </button>
+        <button
+          className="buymode-btn"
+          onPointerDown={(e) => {
+            e.preventDefault();
+            onCycleBuyMode();
+          }}
+        >
+          x{buyMode === 'max' ? 'MAX' : buyMode}
+        </button>
+      </div>
       {UPGRADE_IDS.map((id) => {
         const level = snap.levels[id];
         let count: number;

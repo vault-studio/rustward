@@ -1,9 +1,25 @@
 {
   "hud": {
-    "screen": "PANTALLA",
+    "world": "MUNDO",
+    "phase": "FASE",
     "gold": "ORO",
     "emeralds": "ESMERALDAS",
     "boss": "BOSS"
+  },
+  "worlds": {
+    "rust_belt": "Cinturón de Óxido"
+  },
+  "stats": {
+    "title": "ESTADÍSTICAS",
+    "damage": "Daño",
+    "speed": "Ataques/seg",
+    "defense": "Reducción de daño",
+    "defense_hp": "Vida máxima",
+    "luck": "Crítico",
+    "luck_note": "Probabilidad de golpe crítico (x2 de daño)",
+    "execution_note": "Probabilidad de matar de un golpe (no aplica a bosses)",
+    "gold_note": "Oro extra por cada enemigo derrotado",
+    "emerald_note": "Esmeraldas extra al derrotar un boss"
   },
   "upgrades": {
     "level": "Nv",

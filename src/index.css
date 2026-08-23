@@ -1144,11 +1144,34 @@ button {
   }
 }
 
-/* ============ BOTÓN MODO DE COMPRA ============ */
-.buymode-btn {
+/* ============ BARRA DE HERRAMIENTAS (stats + modo de compra) ============ */
+.bar-toolbar {
   position: absolute;
   top: -42px;
   right: 8px;
+  display: flex;
+  gap: 6px;
+  z-index: 6;
+}
+
+.stats-btn {
+  min-width: 34px;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #241f19;
+  color: var(--rust-light);
+  border: 1px solid #4a4034;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.stats-btn:active {
+  border-color: var(--rust);
+}
+
+.buymode-btn {
   min-width: 58px;
   min-height: 34px;
   background: #241f19;
@@ -1159,9 +1182,227 @@ button {
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  z-index: 6;
 }
 
 .buymode-btn:active {
   border-color: var(--rust);
+}
+
+/* ============ ESTADÍSTICAS DEL PERSONAJE ============ */
+.stats-panel {
+  max-width: 360px;
+}
+
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 14px 18px;
+}
+
+.stats-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: #2c2620;
+  border: 1px solid #3a332a;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.stats-icon {
+  display: flex;
+  color: var(--rust-light);
+  flex: none;
+}
+
+.stats-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stats-label {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stats-note {
+  font-size: 9px;
+  opacity: 0.65;
+}
+
+.stats-value {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--amber);
+}
+
+/* ============ HUD: BOTÓN DE MUNDO ============ */
+.hud-world-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  margin-bottom: 4px;
+  padding: 3px 8px;
+  background: #241f19;
+  border: 1px solid var(--rust);
+  border-radius: 4px;
+  color: var(--rust-light);
+  font-family: var(--font-title);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.hud-world-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hud-world-caret {
+  font-size: 9px;
+  opacity: 0.8;
+}
+
+.hud-world-btn:active {
+  border-color: var(--rust-light);
+}
+
+/* ============ MAPA DE MUNDO ============ */
+.map-panel {
+  max-width: min(94vw, 480px);
+  padding-bottom: 4px;
+}
+
+.map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+}
+
+.map-title {
+  flex: 1;
+  margin: 16px 0 10px;
+  font-size: 18px;
+  text-align: left;
+}
+
+.map-close {
+  flex: none;
+  min-width: 32px;
+  min-height: 32px;
+  background: #2c2620;
+  border: 1px solid #4a4034;
+  border-radius: 5px;
+  color: var(--bone);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.map-close:active {
+  border-color: var(--rust);
+}
+
+.map-track {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding: 14px 16px 18px;
+  background-repeat: repeat-x;
+  background-position: left center;
+  background-size: auto 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.map-phase {
+  flex: none;
+  width: 92px;
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  background: rgba(22, 19, 15, 0.72);
+  border: 1px solid #4a4034;
+  border-radius: 8px;
+}
+
+.map-phase.is-current {
+  border-color: var(--emerald);
+  box-shadow: 0 0 10px rgba(63, 191, 127, 0.4);
+}
+
+.map-phase-num {
+  font-family: var(--font-title);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--amber);
+}
+
+.map-dots {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+
+.map-dot {
+  justify-self: center;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #4a4034;
+  border: 1px solid #2c2620;
+}
+
+.map-dot.done {
+  background: var(--amber);
+  border-color: #8a5c14;
+}
+
+.map-dot.current {
+  background: var(--emerald);
+  border-color: var(--emerald-dark);
+  box-shadow: 0 0 4px rgba(63, 191, 127, 0.8);
+}
+
+.map-boss-dot {
+  justify-self: center;
+  display: flex;
+  filter: grayscale(1) brightness(0.6);
+  opacity: 0.6;
+}
+
+.map-boss-dot.done {
+  filter: none;
+  opacity: 1;
+}
+
+.map-boss-dot.current {
+  filter: none;
+  opacity: 1;
+  animation: bossdotpulse 1s ease-in-out infinite;
+}
+
+@keyframes bossdotpulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
 }

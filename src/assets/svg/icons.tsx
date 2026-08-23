@@ -95,3 +95,41 @@ export function UpgradeIcon({ id }: { id: UpgradeId }) {
   const Icon = UPGRADE_ICONS[id];
   return <Icon />;
 }
+
+// Botón de estadísticas del personaje: cabeza con máscara + hombros.
+export const IconCharacterStats = () => (
+  <svg {...base}>
+    <circle cx="12" cy="9" r="5.4" />
+    <circle cx="9.7" cy="8.6" r="1.3" fill="currentColor" stroke="none" />
+    <circle cx="14.3" cy="8.6" r="1.3" fill="currentColor" stroke="none" />
+    <rect x="10.1" y="11" width="3.8" height="2.4" rx="1" />
+    <path d="M5.5 21 Q5.5 15.2 12 15.2 Q18.5 15.2 18.5 21" />
+  </svg>
+);
+
+// Calavera del mapa de mundo: hueso con grieta óxido, estética post-nuclear.
+export const BossSkullSolid = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M12 2.5 C7.6 2.5 4.5 5.8 4.5 9.8 C4.5 12.6 6 14.6 7.3 15.8 L7.3 18.2 C7.3 19.4 8.2 20.3 9.3 20.3 L14.7 20.3 C15.8 20.3 16.7 19.4 16.7 18.2 L16.7 15.8 C18 14.6 19.5 12.6 19.5 9.8 C19.5 5.8 16.4 2.5 12 2.5 Z"
+      fill="#D8CBB4"
+      stroke="#16130F"
+      strokeWidth="1.1"
+    />
+    <ellipse cx="9" cy="10" rx="1.9" ry="2.3" fill="#16130F" />
+    <ellipse cx="15" cy="10" rx="1.9" ry="2.3" fill="#16130F" />
+    <path d="M12 11.5 L13.1 14 L10.9 14 Z" fill="#16130F" />
+    <path
+      d="M9.3 17 L9.3 20.1 M11.2 17 L11.2 20.1 M12.8 17 L12.8 20.1 M14.7 17 L14.7 20.1"
+      stroke="#16130F"
+      strokeWidth="1"
+    />
+    <path
+      d="M12.5 3.5 L11.2 8 L13 9.4 L11.3 13.5"
+      stroke="#C9621E"
+      strokeWidth="0.9"
+      fill="none"
+      opacity="0.85"
+    />
+  </svg>
+);

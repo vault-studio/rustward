@@ -16,8 +16,11 @@ export const BALANCE = {
   ENEMY_INTERVAL_MS: 1200,
   ENEMIES_PER_SCREEN: 1,
 
+  // === MUNDO / FASE / PANTALLA ===
+  PHASES_PER_WORLD: 15, // fases por mundo; cada fase = BOSS_EVERY pantallas
+
   // === BOSS ===
-  BOSS_EVERY: 10, // pantalla múltiplo de N → boss
+  BOSS_EVERY: 10, // pantalla múltiplo de N → boss (== pantallas por fase)
   BOSS_HP_MULT: 4, // sobre enemyHP de esa pantalla
   BOSS_DMG_MULT: 1, // MVP: el boss pega igual que un enemigo normal
   BOSS_REWARD_GOLD_MULT: 5,

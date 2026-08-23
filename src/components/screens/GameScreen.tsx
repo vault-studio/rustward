@@ -22,6 +22,8 @@ import UpgradeBar, { type BuyMode } from '../upgrades/UpgradeBar';
 import DeathScreen from './DeathScreen';
 import MetaShop from '../ui/MetaShop';
 import OfflineModal from '../ui/OfflineModal';
+import WorldMap from '../ui/WorldMap';
+import StatsModal from '../ui/StatsModal';
 
 const RUN_SAVE_KEY = 'rustward-run';
 
@@ -45,6 +47,8 @@ function playEventSfx(events: DamageEvent[]): void {
 export default function GameScreen() {
   const t = useT();
   const [shopOpen, setShopOpen] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
   const [offline, setOffline] = useState<OfflineSummary | null>(null);
   const [buyMode, setBuyMode] = useState<BuyMode>(1);
   const [shaking, setShaking] = useState(false);
@@ -177,6 +181,7 @@ export default function GameScreen() {
   }, [engine]);
 
   const tapHintSeen = useMetaStore((s) => s.tapHintSeen);
+  const bestScreen = useMetaStore((s) => s.bestScreen);
 
   if (!snap) return null;
 
@@ -231,7 +236,11 @@ export default function GameScreen() {
 
   return (
     <div className="game-root" onContextMenu={(e) => e.preventDefault()}>
-      <Hud snap={snap} onOpenShop={() => setShopOpen(true)} />
+      <Hud
+        snap={snap}
+        onOpenShop={() => setShopOpen(true)}
+        onOpenMap={() => setMapOpen(true)}
+      />
       <main
         className={`stage ${snap.advancing ? 'advancing' : ''} ${
           snap.isBoss && !snap.advancing ? 'boss-fight' : ''
@@ -258,11 +267,20 @@ export default function GameScreen() {
         buyMode={buyMode}
         onCycleBuyMode={cycleBuyMode}
         onBuy={handleBuy}
+        onOpenStats={() => setStatsOpen(true)}
       />
       {snap.status === 'dead' && !offline && (
         <DeathScreen snap={snap} onRetry={handleRetry} onRevive={handleRevive} />
       )}
       {shopOpen && <MetaShop onClose={() => setShopOpen(false)} />}
+      {statsOpen && <StatsModal snap={snap} onClose={() => setStatsOpen(false)} />}
+      {mapOpen && (
+        <WorldMap
+          currentScreen={snap.screen}
+          bestScreen={bestScreen}
+          onClose={() => setMapOpen(false)}
+        />
+      )}
       {offline && (
         <OfflineModal summary={offline} onClose={() => setOffline(null)} />
       )}

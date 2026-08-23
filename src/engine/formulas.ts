@@ -67,6 +67,43 @@ export function emeraldsPerBoss(screen: number, emeraldMult: number): number {
   return Math.max(1, Math.floor(base * emeraldMult));
 }
 
+// === MUNDO / FASE / PANTALLA ===
+// La pantalla (screen) sigue siendo la unidad interna del motor — mundo y
+// fase son puramente derivados para la presentación, sin estado propio.
+
+// Índice de fase 1-based a través de TODOS los mundos.
+export function phaseGlobal(screen: number): number {
+  return Math.ceil(screen / B.BOSS_EVERY);
+}
+
+// Índice de mundo, 0-based.
+export function worldIndexOf(screen: number): number {
+  return Math.floor((phaseGlobal(screen) - 1) / B.PHASES_PER_WORLD);
+}
+
+// Fase dentro del mundo, 1..PHASES_PER_WORLD.
+export function phaseInWorldOf(screen: number): number {
+  return ((phaseGlobal(screen) - 1) % B.PHASES_PER_WORLD) + 1;
+}
+
+// Pantalla dentro de la fase actual, 1..BOSS_EVERY (la pantalla del boss
+// cuenta como BOSS_EVERY, no como 0).
+export function screenInPhaseOf(screen: number): number {
+  const m = screen % B.BOSS_EVERY;
+  return m === 0 ? B.BOSS_EVERY : m;
+}
+
+// Rango [inicio, fin] de pantallas globales que cubre la fase
+// `phaseInWorld1based` (1..PHASES_PER_WORLD) del mundo `worldIdx` (0-based).
+export function phaseScreenRange(
+  worldIdx: number,
+  phaseInWorld1based: number,
+): [number, number] {
+  const globalPhase = worldIdx * B.PHASES_PER_WORLD + phaseInWorld1based;
+  const last = globalPhase * B.BOSS_EVERY;
+  return [last - B.BOSS_EVERY + 1, last];
+}
+
 // === META-PROGRESIÓN ===
 export interface MetaBonuses {
   dmgMult: number;
