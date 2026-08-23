@@ -21,15 +21,36 @@ export const BALANCE = {
   // config/worlds.ts) — cada fase = BOSS_EVERY pantallas.
   PHASES_PER_WORLD: 5,
 
+  // === ESCALADO POR MUNDO ===
+  // La curva ENEMY_HP_GROWTH/ENEMY_DMG_GROWTH se REINICIA en cada mundo
+  // (pantalla local 1..50, no la pantalla absoluta) — si no, con 5 mundos
+  // de 50 pantallas el mundo 5 llegaría a la pantalla 250 y 1.14^250 son
+  // billones de HP, imposibles de compensar con ningún multiplicador.
+  // Estos arrays (índice 0 = Mundo 1) son lo ÚNICO que escala la dificultad
+  // ENTRE mundos; los mundos más allá del array reutilizan el último valor.
+  // Calibrados por simulación para que el boss final de cada mundo caiga
+  // tras ~N compras acumuladas en la tienda de esmeraldas:
+  // Mundo 1: 4-5, Mundo 2: 10-15, Mundo 3: 30-40, Mundo 4: 60+, Mundo 5: 100+.
+  // Calibrado por simulación (ver scripts/verify-5worlds-balance.mjs):
+  // boss final de cada mundo superable con ~5 / 10 / 30 / 60 / 100 compras
+  // acumuladas en la tienda de esmeraldas (una hora de grindeo con
+  // reintentos y meta ya comprada, empezando en cada mundo).
+  WORLD_HP_MULT: [1, 0.33, 0.87, 2.26, 4.69],
+  WORLD_DMG_MULT: [1, 0.58, 0.93, 1.5, 2.17],
+  WORLD_GOLD_MULT: [1, 0.33, 0.87, 2.26, 4.69],
+
   // === BOSS ===
   BOSS_EVERY: 10, // pantalla múltiplo de N → boss (== pantallas por fase)
-  // Bosses de fase (1..PHASES_PER_WORLD-1 de cada mundo): la mitad de vida
-  // que antes. El boss final de mundo (última fase): el doble de vida y
-  // el doble de daño — es el único que de verdad hace reiniciar la run.
-  PHASE_BOSS_HP_MULT: 2, // antes 4, ahora la mitad
-  WORLD_BOSS_HP_MULT: 8, // antes 4, ahora el doble
-  PHASE_BOSS_DMG_MULT: 1, // sin cambio: pega igual que un enemigo normal
-  WORLD_BOSS_DMG_MULT: 2, // el doble de daño
+  // Bosses de fase: la mitad de vida que antes. El boss final de mundo (el
+  // único que de verdad hace reiniciar la run) usa un multiplicador propio
+  // sobre su enemyHP/enemyDmg local — calibrado por simulación (binary
+  // search, ver scripts/verify-5worlds-balance.mjs) para que ~5 compras de
+  // meta ya basten en el Mundo 1; WORLD_HP_MULT/DMG_MULT llevan el resto de
+  // la escalada entre mundos.
+  PHASE_BOSS_HP_MULT: 2,
+  WORLD_BOSS_HP_MULT: 0.6,
+  PHASE_BOSS_DMG_MULT: 1,
+  WORLD_BOSS_DMG_MULT: 1.2,
   BOSS_REWARD_GOLD_MULT: 5,
 
   // === JUGADOR ===

@@ -11,12 +11,34 @@ import {
   type UpgradeId,
 } from '../config/balance';
 
+// Pantalla dentro del mundo actual (1..pantallas por mundo) — la curva de
+// dificultad se reinicia en cada mundo; solo WORLD_*_MULT escala la
+// dificultad ENTRE mundos (ver nota en balance.ts).
+function localScreenOf(screen: number): number {
+  const screensPerWorld = B.BOSS_EVERY * B.PHASES_PER_WORLD;
+  const m = screen % screensPerWorld;
+  return m === 0 ? screensPerWorld : m;
+}
+
+function worldMultAt(screen: number, table: readonly number[]): number {
+  const w = worldIndexOf(screen);
+  return table[Math.min(w, table.length - 1)];
+}
+
 export function enemyHP(screen: number): number {
-  return B.ENEMY_BASE_HP * Math.pow(B.ENEMY_HP_GROWTH, screen - 1);
+  const local = localScreenOf(screen);
+  return (
+    B.ENEMY_BASE_HP * Math.pow(B.ENEMY_HP_GROWTH, local - 1) * worldMultAt(screen, B.WORLD_HP_MULT)
+  );
 }
 
 export function enemyDmg(screen: number): number {
-  return B.ENEMY_DMG_BASE * Math.pow(B.ENEMY_DMG_GROWTH, screen - 1);
+  const local = localScreenOf(screen);
+  return (
+    B.ENEMY_DMG_BASE *
+    Math.pow(B.ENEMY_DMG_GROWTH, local - 1) *
+    worldMultAt(screen, B.WORLD_DMG_MULT)
+  );
 }
 
 export function isBossScreen(screen: number): boolean {
@@ -92,9 +114,11 @@ export function maxAffordable(id: UpgradeId, level: number, gold: number): numbe
 }
 
 export function goldPerKill(screen: number, goldMult: number): number {
+  const local = localScreenOf(screen);
   return Math.round(
     B.GOLD_BASE *
-      Math.pow(B.ENEMY_HP_GROWTH, (screen - 1) * B.GOLD_GROWTH_EXP) *
+      Math.pow(B.ENEMY_HP_GROWTH, (local - 1) * B.GOLD_GROWTH_EXP) *
+      worldMultAt(screen, B.WORLD_GOLD_MULT) *
       goldMult,
   );
 }
