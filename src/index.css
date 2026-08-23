@@ -796,6 +796,12 @@ button {
   color: var(--amber);
 }
 
+.upg-max-gain {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--emerald);
+}
+
 /* badge minimalista: lo que da CADA nivel de la mejora, junto al nivel
    actual — solo el número, el icono ya dice de qué stat se trata. */
 .upg-effect {
@@ -835,6 +841,10 @@ button {
 
   .upg-lvl {
     font-size: 11px;
+  }
+
+  .upg-max-gain {
+    font-size: 13px;
   }
 
   .upg-cost {

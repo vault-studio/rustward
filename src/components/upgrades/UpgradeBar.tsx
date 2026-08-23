@@ -62,6 +62,7 @@ export default function UpgradeBar({
             count={count}
             cost={cost}
             canAfford={snap.status === 'playing' && snap.gold >= cost}
+            isMaxMode={buyMode === 'max'}
             onBuy={onBuy}
           />
         );

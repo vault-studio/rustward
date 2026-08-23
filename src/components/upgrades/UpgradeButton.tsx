@@ -10,6 +10,7 @@ interface Props {
   count: number;
   cost: number;
   canAfford: boolean;
+  isMaxMode: boolean;
   onBuy: (id: UpgradeId, count: number) => void;
 }
 
@@ -21,6 +22,7 @@ export default function UpgradeButton({
   count,
   cost,
   canAfford,
+  isMaxMode,
   onBuy,
 }: Props) {
   const t = useT();
@@ -37,13 +39,21 @@ export default function UpgradeButton({
       <span className="upg-icon">
         <UpgradeIcon id={id} />
       </span>
-      <span className="upg-name">{t(`upgrades.${id}`)}</span>
-      <span className="upg-lvl-row">
-        <span className="upg-lvl">
-          {t('upgrades.level')} {level}
+      {isMaxMode ? (
+        <span className="upg-lvl upg-max-gain">
+          +{count} {t('upgrades.level')}
         </span>
-        <span className="upg-effect">{upgradeEffectLabel(id)}</span>
-      </span>
+      ) : (
+        <>
+          <span className="upg-name">{t(`upgrades.${id}`)}</span>
+          <span className="upg-lvl-row">
+            <span className="upg-lvl">
+              {t('upgrades.level')} {level}
+            </span>
+            <span className="upg-effect">{upgradeEffectLabel(id)}</span>
+          </span>
+        </>
+      )}
       <span className="upg-cost">{formatNumber(cost)}</span>
     </button>
   );
