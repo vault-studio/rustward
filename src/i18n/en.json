@@ -39,7 +39,9 @@
     "time": "Time",
     "best": "Best",
     "retry": "RETRY",
-    "revive": "REVIVE"
+    "revive": "REVIVE",
+    "restart_world1": "FIRST WORLD",
+    "restart_world_n": "WORLD"
   },
   "meta": {
     "title": "PERMANENT UPGRADES",
@@ -47,15 +49,13 @@
     "close": "CLOSE",
     "max": "MAX",
     "mDamage": "Strength",
-    "mDamage_desc": "+10% damage per level",
+    "mDamage_unit": "damage",
     "mHealth": "Vitality",
-    "mHealth_desc": "+10% health per level",
+    "mHealth_unit": "health",
     "mGold": "Greed",
-    "mGold_desc": "+10% gold per level",
+    "mGold_unit": "gold per kill",
     "mStartGold": "Stash",
-    "mStartGold_desc": "+40 starting gold per level",
-    "mStartScreen": "Shortcut",
-    "mStartScreen_desc": "+1 starting screen per level"
+    "mStartGold_unit": "starting gold"
   },
   "offline": {
     "title": "WHILE YOU WERE AWAY",

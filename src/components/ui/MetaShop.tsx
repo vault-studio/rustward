@@ -1,16 +1,9 @@
 import { META_IDS, type MetaId } from '../../config/balance';
-import { metaCost, metaIsMaxed } from '../../engine/formulas';
+import { metaCost, metaIsMaxed, metaNextLevelDelta } from '../../engine/formulas';
 import { useMetaStore } from '../../store/useMetaStore';
 import { useT } from '../../i18n';
 import { formatNumber } from '../../utils/formatNumber';
-import {
-  EmeraldSolid,
-  IconAttack,
-  IconDefense,
-  IconGold,
-  IconSpeed,
-  UpgradeIcon,
-} from '../../assets/svg/icons';
+import { EmeraldSolid, IconAttack, IconDefense, IconGold, UpgradeIcon } from '../../assets/svg/icons';
 import { sfx } from '../../audio/sfx';
 
 const META_ICONS: Record<MetaId, () => JSX.Element> = {
@@ -18,7 +11,6 @@ const META_ICONS: Record<MetaId, () => JSX.Element> = {
   mHealth: IconDefense,
   mGold: IconGold,
   mStartGold: () => <UpgradeIcon id="gold" />,
-  mStartScreen: IconSpeed,
 };
 
 export default function MetaShop({ onClose }: { onClose: () => void }) {
@@ -44,6 +36,7 @@ export default function MetaShop({ onClose }: { onClose: () => void }) {
             const maxed = metaIsMaxed(id, level);
             const cost = metaCost(id, level);
             const canBuy = !maxed && emeralds >= cost;
+            const nextDelta = metaNextLevelDelta(id, level);
             return (
               <div className="meta-row" key={id}>
                 <span className="meta-icon">
@@ -56,7 +49,9 @@ export default function MetaShop({ onClose }: { onClose: () => void }) {
                       {t('upgrades.level')} {level}
                     </span>
                   </span>
-                  <span className="meta-desc">{t(`meta.${id}_desc`)}</span>
+                  <span className="meta-desc">
+                    +{formatNumber(nextDelta)} {t(`meta.${id}_unit`)}
+                  </span>
                 </span>
                 <button
                   className="meta-buy"

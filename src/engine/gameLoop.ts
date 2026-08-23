@@ -68,7 +68,11 @@ export interface Engine {
   buyUpgrade(id: UpgradeId, count?: number): boolean;
   buyMax(id: UpgradeId): boolean;
   revive(): boolean;
-  reset(): void;
+  // `startWorldIdx` (0-based, por defecto 0) permite reiniciar directamente
+  // en la primera pantalla de ese mundo en vez de desde el Mundo 1 —
+  // "revivir desde el mundo en que moriste" sin tener que re-grindear los
+  // mundos anteriores.
+  reset(startWorldIdx?: number): void;
   setMeta(meta: MetaBonuses): void;
   snapshot(): Snapshot;
   drainEvents(): DamageEvent[];
@@ -126,10 +130,11 @@ export function createEngine(hooks: EngineHooks): Engine {
 
   function onFoeKilled(): void {
     kills += 1;
-    const reward = Math.round(
-      goldPerKill(screen, stats.goldMult) *
-        (foe.isBoss ? B.BOSS_REWARD_GOLD_MULT : 1),
-    );
+    const reward =
+      Math.round(
+        goldPerKill(screen, stats.goldMult) *
+          (foe.isBoss ? B.BOSS_REWARD_GOLD_MULT : 1),
+      ) + meta.goldFlat; // Codicia: oro extra fijo por cada bicho matado
     gold += reward;
     goldEarned += reward;
     pushEvent('enemy', reward, 'gold');
@@ -254,9 +259,9 @@ export function createEngine(hooks: EngineHooks): Engine {
     return true;
   }
 
-  function reset(): void {
+  function reset(startWorldIdx = 0): void {
     events = [];
-    screen = 1 + meta.startScreen;
+    screen = startWorldIdx * B.BOSS_EVERY * B.PHASES_PER_WORLD + 1;
     gold = meta.startGold;
     goldEarned = 0;
     emeraldsRun = 0;

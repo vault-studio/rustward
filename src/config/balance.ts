@@ -9,7 +9,10 @@ export const BALANCE = {
   // valores (barrido simulado): boss 1 cae en la run 1, cada run mata los
   // bosses de las pantallas 10 y 20, y el muro queda en el boss de la 30
   // hasta que la meta-progresión lo empuja más allá.
-  ENEMY_BASE_HP: 12,
+  // ENEMY_BASE_HP=30: calibrado para que, sin ninguna mejora de Fuerza, el
+  // primer bicho de la fase 1 (screen local 1, daño base ATK_BASE=10) muera
+  // en exactamente 3 golpes (30/10=3). Ver metaDamageBonus() en formulas.ts.
+  ENEMY_BASE_HP: 30,
   ENEMY_HP_GROWTH: 1.14, // exponencial por pantalla
   ENEMY_DMG_BASE: 3,
   ENEMY_DMG_GROWTH: 1.06,
@@ -35,9 +38,9 @@ export const BALANCE = {
   // boss final de cada mundo superable con ~5 / 10 / 30 / 60 / 100 compras
   // acumuladas en la tienda de esmeraldas (una hora de grindeo con
   // reintentos y meta ya comprada, empezando en cada mundo).
-  WORLD_HP_MULT: [1, 0.33, 0.87, 2.26, 4.69],
-  WORLD_DMG_MULT: [1, 0.58, 0.93, 1.5, 2.17],
-  WORLD_GOLD_MULT: [1, 0.33, 0.87, 2.26, 4.69],
+  WORLD_HP_MULT: [1, 1.25, 11.49, 59.11, 113.66],
+  WORLD_DMG_MULT: [1, 1.12, 3.39, 7.69, 10.66],
+  WORLD_GOLD_MULT: [1, 1.25, 11.49, 59.11, 113.66],
 
   // === BOSS ===
   BOSS_EVERY: 10, // pantalla múltiplo de N → boss (== pantallas por fase)
@@ -48,7 +51,7 @@ export const BALANCE = {
   // meta ya basten en el Mundo 1; WORLD_HP_MULT/DMG_MULT llevan el resto de
   // la escalada entre mundos.
   PHASE_BOSS_HP_MULT: 2,
-  WORLD_BOSS_HP_MULT: 0.6,
+  WORLD_BOSS_HP_MULT: 0.02,
   PHASE_BOSS_DMG_MULT: 1,
   WORLD_BOSS_DMG_MULT: 1.2,
   BOSS_REWARD_GOLD_MULT: 5,
@@ -141,20 +144,10 @@ export const COST_GROWTH: Record<UpgradeId, number> = {
 };
 
 // === META-PROGRESIÓN (mejoras permanentes compradas con esmeraldas) ===
-export type MetaId =
-  | 'mDamage'
-  | 'mHealth'
-  | 'mGold'
-  | 'mStartGold'
-  | 'mStartScreen';
+// Todas suman NÚMEROS planos (nunca %) — se ven y se sienten directamente.
+export type MetaId = 'mDamage' | 'mHealth' | 'mGold' | 'mStartGold';
 
-export const META_IDS: MetaId[] = [
-  'mDamage',
-  'mHealth',
-  'mGold',
-  'mStartGold',
-  'mStartScreen',
-];
+export const META_IDS: MetaId[] = ['mDamage', 'mHealth', 'mGold', 'mStartGold'];
 
 // maxLevel 0 = sin límite.
 export const META_CONFIG: Record<
@@ -165,13 +158,15 @@ export const META_CONFIG: Record<
   mHealth: { baseCost: 4, costGrowth: 1.35, maxLevel: 0 },
   mGold: { baseCost: 6, costGrowth: 1.4, maxLevel: 0 },
   mStartGold: { baseCost: 3, costGrowth: 1.5, maxLevel: 0 },
-  mStartScreen: { baseCost: 12, costGrowth: 1.9, maxLevel: 8 },
 };
 
 export const META_EFFECT = {
-  DMG_PER_LEVEL: 0.1, // +10% daño por nivel
-  HP_PER_LEVEL: 0.1, // +10% HP por nivel
-  GOLD_PER_LEVEL: 0.1, // +10% oro por nivel
-  START_GOLD_PER_LEVEL: 40, // oro inicial por nivel
-  START_SCREEN_PER_LEVEL: 1, // pantalla inicial por nivel (cap: antes del boss 1)
+  // Fuerza (mDamage) NO usa un valor fijo aquí: su bonus de daño plano se
+  // calcula con metaDamageBonus() en engine/formulas.ts a partir de
+  // ENEMY_BASE_HP/ENEMY_HP_GROWTH/BOSS_EVERY — calibrado para que el primer
+  // bicho de cada fase muera en 3 golpes con 2 niveles más de Fuerza que la
+  // fase anterior (fase1: 0 niveles, fase2: 2, fase3: 4...).
+  HP_FLAT_PER_LEVEL: 20, // Vitalidad: +20 de vida máxima por nivel
+  GOLD_FLAT_PER_LEVEL: 10, // Codicia: +10 de oro por cada bicho matado, por nivel
+  START_GOLD_PER_LEVEL: 40, // Alijo: oro inicial por nivel
 } as const;

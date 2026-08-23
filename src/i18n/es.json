@@ -39,7 +39,9 @@
     "time": "Tiempo",
     "best": "Récord",
     "retry": "REINTENTAR",
-    "revive": "REVIVIR"
+    "revive": "REVIVIR",
+    "restart_world1": "PRIMER MUNDO",
+    "restart_world_n": "MUNDO"
   },
   "meta": {
     "title": "MEJORAS PERMANENTES",
@@ -47,15 +49,13 @@
     "close": "CERRAR",
     "max": "MÁX",
     "mDamage": "Fuerza",
-    "mDamage_desc": "+10% de daño por nivel",
+    "mDamage_unit": "daño",
     "mHealth": "Vitalidad",
-    "mHealth_desc": "+10% de vida por nivel",
+    "mHealth_unit": "vida",
     "mGold": "Codicia",
-    "mGold_desc": "+10% de oro por nivel",
+    "mGold_unit": "oro por bicho",
     "mStartGold": "Alijo",
-    "mStartGold_desc": "+40 de oro inicial por nivel",
-    "mStartScreen": "Atajo",
-    "mStartScreen_desc": "+1 pantalla inicial por nivel"
+    "mStartGold_unit": "oro inicial"
   },
   "offline": {
     "title": "MIENTRAS ESTABAS FUERA",

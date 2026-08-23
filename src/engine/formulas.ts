@@ -169,29 +169,53 @@ export function phaseScreenRange(
 }
 
 // === META-PROGRESIÓN ===
+// Fuerza (mDamage): bonus de daño PLANO, no un %. Se deriva de
+// ENEMY_BASE_HP/ENEMY_HP_GROWTH/BOSS_EVERY con un objetivo de diseño
+// concreto: sin ninguna mejora, el primer bicho de la fase 1 muere en 3
+// golpes; con 2 niveles más de Fuerza por cada fase siguiente (hasta la
+// fase 5, nivel 8 — las 5 fases de un mundo), su primer bicho también
+// muere en 3 golpes:
+//   damage(nivel) = (ENEMY_BASE_HP/3) * ENEMY_HP_GROWTH^((BOSS_EVERY/2)*nivel)
+// Ese exponencial SOLO se aplica hasta FUERZA_EXP_CAP_LEVEL — de ahí en
+// adelante crece de forma lineal (misma pendiente que el último tramo),
+// si no, la meta-progresión a largo plazo (decenas de niveles) explota a
+// cifras astronómicas y ningún boss de mundo puede calibrarse contra eso.
+const FUERZA_EXP_CAP_LEVEL = B.PHASES_PER_WORLD * 2; // = nivel de la fase 5 (8)
+
+function fuerzaExpDamage(level: number): number {
+  return (B.ENEMY_BASE_HP / 3) * Math.pow(B.ENEMY_HP_GROWTH, (B.BOSS_EVERY / 2) * level);
+}
+
+export function metaDamageBonus(level: number): number {
+  if (level <= 0) return 0;
+  if (level <= FUERZA_EXP_CAP_LEVEL) {
+    return Math.max(0, fuerzaExpDamage(level) - B.ATK_BASE);
+  }
+  const atCap = fuerzaExpDamage(FUERZA_EXP_CAP_LEVEL);
+  const slope = atCap - fuerzaExpDamage(FUERZA_EXP_CAP_LEVEL - 1);
+  return atCap - B.ATK_BASE + slope * (level - FUERZA_EXP_CAP_LEVEL);
+}
+
 export interface MetaBonuses {
-  dmgMult: number;
-  hpMult: number;
-  goldMult: number;
+  dmgFlat: number;
+  hpFlat: number;
+  goldFlat: number; // oro extra por cada bicho matado
   startGold: number;
-  startScreen: number; // pantalla inicial = 1 + startScreen
 }
 
 export const NO_META: MetaBonuses = {
-  dmgMult: 1,
-  hpMult: 1,
-  goldMult: 1,
+  dmgFlat: 0,
+  hpFlat: 0,
+  goldFlat: 0,
   startGold: 0,
-  startScreen: 0,
 };
 
 export function metaBonuses(levels: Record<MetaId, number>): MetaBonuses {
   return {
-    dmgMult: 1 + META_EFFECT.DMG_PER_LEVEL * levels.mDamage,
-    hpMult: 1 + META_EFFECT.HP_PER_LEVEL * levels.mHealth,
-    goldMult: 1 + META_EFFECT.GOLD_PER_LEVEL * levels.mGold,
+    dmgFlat: metaDamageBonus(levels.mDamage),
+    hpFlat: META_EFFECT.HP_FLAT_PER_LEVEL * levels.mHealth,
+    goldFlat: META_EFFECT.GOLD_FLAT_PER_LEVEL * levels.mGold,
     startGold: META_EFFECT.START_GOLD_PER_LEVEL * levels.mStartGold,
-    startScreen: META_EFFECT.START_SCREEN_PER_LEVEL * levels.mStartScreen,
   };
 }
 
@@ -203,6 +227,21 @@ export function metaCost(id: MetaId, level: number): number {
 export function metaIsMaxed(id: MetaId, level: number): boolean {
   const cfg = META_CONFIG[id];
   return cfg.maxLevel > 0 && level >= cfg.maxLevel;
+}
+
+// Lo que suma EXACTAMENTE el próximo nivel de una mejora meta — para
+// mostrarlo como número en la tienda (nunca como %).
+export function metaNextLevelDelta(id: MetaId, level: number): number {
+  switch (id) {
+    case 'mDamage':
+      return Math.round(metaDamageBonus(level + 1) - metaDamageBonus(level));
+    case 'mHealth':
+      return META_EFFECT.HP_FLAT_PER_LEVEL;
+    case 'mGold':
+      return META_EFFECT.GOLD_FLAT_PER_LEVEL;
+    case 'mStartGold':
+      return META_EFFECT.START_GOLD_PER_LEVEL;
+  }
 }
 
 // === SKINS ===
@@ -241,8 +280,8 @@ export function playerStats(
   meta: MetaBonuses = NO_META,
 ): PlayerStats {
   return {
-    damage: (B.ATK_BASE + B.ATK_PER_LEVEL * levels.attack) * meta.dmgMult,
-    maxHP: Math.round((B.HP_BASE + B.HP_PER_LEVEL * levels.defense) * meta.hpMult),
+    damage: B.ATK_BASE + B.ATK_PER_LEVEL * levels.attack + meta.dmgFlat,
+    maxHP: Math.round(B.HP_BASE + B.HP_PER_LEVEL * levels.defense + meta.hpFlat),
     flatDR: B.DR_PER_LEVEL * levels.defense,
     attackInterval: Math.max(
       B.ATK_INTERVAL_MIN,
@@ -251,7 +290,7 @@ export function playerStats(
     critChance: Math.min(B.CRIT_CAP, B.CRIT_BASE + B.CRIT_PER_LEVEL * levels.luck),
     critMult: B.CRIT_MULT,
     execChance: Math.min(B.EXEC_CAP, B.EXEC_PER_LEVEL * levels.execution),
-    goldMult: (1 + B.GOLD_MULT_PER_LEVEL * levels.gold) * meta.goldMult,
+    goldMult: 1 + B.GOLD_MULT_PER_LEVEL * levels.gold,
     emeraldMult: 1 + B.EMERALD_MULT_PER_LEVEL * levels.emerald,
   };
 }

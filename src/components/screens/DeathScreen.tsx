@@ -1,5 +1,6 @@
 import { BALANCE as B } from '../../config/balance';
 import type { Snapshot } from '../../engine/gameLoop';
+import { worldIndexOf } from '../../engine/formulas';
 import { useMetaStore } from '../../store/useMetaStore';
 import { useT } from '../../i18n';
 import { formatNumber, formatTime } from '../../utils/formatNumber';
@@ -7,17 +8,24 @@ import { EmeraldSolid } from '../../assets/svg/icons';
 
 interface Props {
   snap: Snapshot;
-  onRetry: () => void;
+  onRestartWorld1: () => void;
+  onRestartAtDeathWorld: () => void;
   onRevive: () => void;
 }
 
-export default function DeathScreen({ snap, onRetry, onRevive }: Props) {
+export default function DeathScreen({
+  snap,
+  onRestartWorld1,
+  onRestartAtDeathWorld,
+  onRevive,
+}: Props) {
   const t = useT();
   const bestScreen = useMetaStore((s) => s.bestScreen);
   const emeralds = useMetaStore((s) => s.emeralds);
 
-  const canRevive =
-    !snap.revivedThisRun && emeralds >= B.REVIVE_COST_EMERALDS;
+  const canRevive = !snap.revivedThisRun && emeralds >= B.REVIVE_COST_EMERALDS;
+  const deathWorldIdx = worldIndexOf(snap.screen); // 0-based
+  const showWorldNButton = deathWorldIdx > 0;
 
   const rows: Array<[string, string]> = [
     [t('death.screen_reached'), String(snap.screen)],
@@ -49,12 +57,28 @@ export default function DeathScreen({ snap, onRetry, onRevive }: Props) {
               onRevive();
             }}
           >
-            {t('death.revive')} · <EmeraldSolid size={12} />{' '}
-            {B.REVIVE_COST_EMERALDS}
+            {t('death.revive')} · <EmeraldSolid size={12} /> {B.REVIVE_COST_EMERALDS}
           </button>
         )}
-        <button className="panel-btn primary retry-btn" onPointerDown={onRetry}>
-          {t('death.retry')}
+        {showWorldNButton && (
+          <button
+            className="panel-btn primary"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              onRestartAtDeathWorld();
+            }}
+          >
+            {t('death.restart_world_n')} {deathWorldIdx + 1}
+          </button>
+        )}
+        <button
+          className={`panel-btn ${showWorldNButton ? '' : 'primary'} retry-btn`}
+          onPointerDown={(e) => {
+            e.preventDefault();
+            onRestartWorld1();
+          }}
+        >
+          {t('death.restart_world1')}
         </button>
         <div className="panel-hazard bottom" />
       </div>

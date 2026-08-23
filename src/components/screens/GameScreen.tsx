@@ -8,7 +8,7 @@ import {
   type Snapshot,
 } from '../../engine/gameLoop';
 import { BALANCE as B, type UpgradeId } from '../../config/balance';
-import { metaBonuses, skinTier } from '../../engine/formulas';
+import { metaBonuses, skinTier, worldIndexOf } from '../../engine/formulas';
 import { useRunStore } from '../../store/useRunStore';
 import { useMetaStore } from '../../store/useMetaStore';
 import { initAudio, setMuted, sfx } from '../../audio/sfx';
@@ -195,9 +195,15 @@ export default function GameScreen() {
     }
   };
 
-  const handleRetry = () => {
+  const handleRestartWorld1 = () => {
     initAudio();
-    engine.reset();
+    engine.reset(0);
+    commitNow();
+  };
+
+  const handleRestartAtDeathWorld = () => {
+    initAudio();
+    engine.reset(worldIndexOf(snap.screen));
     commitNow();
   };
 
@@ -270,7 +276,12 @@ export default function GameScreen() {
         onOpenStats={() => setStatsOpen(true)}
       />
       {snap.status === 'dead' && !offline && (
-        <DeathScreen snap={snap} onRetry={handleRetry} onRevive={handleRevive} />
+        <DeathScreen
+          snap={snap}
+          onRestartWorld1={handleRestartWorld1}
+          onRestartAtDeathWorld={handleRestartAtDeathWorld}
+          onRevive={handleRevive}
+        />
       )}
       {shopOpen && <MetaShop onClose={() => setShopOpen(false)} />}
       {statsOpen && <StatsModal snap={snap} onClose={() => setStatsOpen(false)} />}
