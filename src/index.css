@@ -1386,22 +1386,23 @@ button {
   pointer-events: none;
 }
 
+/* Solo se dibuja el camino de la fase ACTIVA — nunca uno inaccesible — así
+   que incluso su estado "locked" (aún no llegaste al boss en este intento)
+   debe verse claro, no apagado como si fuera una fase bloqueada de verdad. */
 .worldmap-path {
   fill: none;
-  stroke: #4a4034;
-  stroke-width: 0.55;
+  stroke: var(--amber);
+  stroke-width: 0.6;
   stroke-dasharray: 1.4 1.1;
   stroke-linecap: round;
-  opacity: 0.55;
+  opacity: 0.6;
 }
 
 .worldmap-path.done {
-  stroke: var(--amber);
   opacity: 0.85;
 }
 
 .worldmap-path.current {
-  stroke: var(--amber);
   opacity: 0.95;
 }
 
