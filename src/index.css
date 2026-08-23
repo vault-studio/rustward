@@ -682,6 +682,13 @@ button {
   color: #e0522b;
 }
 
+.dmg-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--amber);
+}
+
 @keyframes dmgfloat {
   from {
     opacity: 1;

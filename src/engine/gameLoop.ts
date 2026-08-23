@@ -17,7 +17,7 @@ import { mitigatedDamage, rollPlayerHit } from './combat';
 import { spawnForScreen, type EnemyKind, type SpawnedEnemy } from './spawner';
 
 export type RunStatus = 'playing' | 'dead';
-export type DamageKind = 'normal' | 'crit' | 'exec';
+export type DamageKind = 'normal' | 'crit' | 'exec' | 'gold';
 
 export interface DamageEvent {
   id: number;
@@ -129,6 +129,7 @@ export function createEngine(hooks: EngineHooks): Engine {
     );
     gold += reward;
     goldEarned += reward;
+    pushEvent('enemy', reward, 'gold');
 
     if (foe.isBoss) {
       const emeralds = emeraldsPerBoss(screen, stats.emeraldMult);

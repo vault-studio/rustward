@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import type { DamageEvent } from '../../engine/gameLoop';
 import { useRunStore } from '../../store/useRunStore';
 import { formatNumber } from '../../utils/formatNumber';
+import { CoinSolid } from '../../assets/svg/icons';
 
 const LIFETIME_MS = 900;
 
@@ -30,7 +31,13 @@ function DamageNumber({ ev }: { ev: DamageEvent }) {
 
   return (
     <span className={`dmg dmg-${ev.kind} dmg-${ev.target}`} style={style}>
-      {text}
+      {ev.kind === 'gold' ? (
+        <>
+          <CoinSolid size={11} />+{formatNumber(ev.amount)}
+        </>
+      ) : (
+        text
+      )}
     </span>
   );
 }
