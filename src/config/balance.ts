@@ -23,8 +23,13 @@ export const BALANCE = {
 
   // === BOSS ===
   BOSS_EVERY: 10, // pantalla múltiplo de N → boss (== pantallas por fase)
-  BOSS_HP_MULT: 4, // sobre enemyHP de esa pantalla
-  BOSS_DMG_MULT: 1, // MVP: el boss pega igual que un enemigo normal
+  // Bosses de fase (1..PHASES_PER_WORLD-1 de cada mundo): la mitad de vida
+  // que antes. El boss final de mundo (última fase): el doble de vida y
+  // el doble de daño — es el único que de verdad hace reiniciar la run.
+  PHASE_BOSS_HP_MULT: 2, // antes 4, ahora la mitad
+  WORLD_BOSS_HP_MULT: 8, // antes 4, ahora el doble
+  PHASE_BOSS_DMG_MULT: 1, // sin cambio: pega igual que un enemigo normal
+  WORLD_BOSS_DMG_MULT: 2, // el doble de daño
   BOSS_REWARD_GOLD_MULT: 5,
 
   // === JUGADOR ===
@@ -32,7 +37,7 @@ export const BALANCE = {
   HP_PER_LEVEL: 8, // Defensa
   DR_PER_LEVEL: 0.4, // reducción plana de daño (Defensa)
   DR_MAX_PCT_OF_HIT: 0.8, // la DR nunca reduce más del 80% de un golpe
-  ATK_BASE: 4,
+  ATK_BASE: 10, // antes 4 — el daño del personaje empieza en 10
   ATK_PER_LEVEL: 3, // Ataque
   ATK_INTERVAL_BASE: 1000, // ms
   ATK_INTERVAL_MIN: 150, // ms
@@ -50,7 +55,7 @@ export const BALANCE = {
   TAP_MIN_INTERVAL_MS: 120, // rate-limit del tapeo
 
   // === ECONOMÍA ===
-  GOLD_BASE: 6,
+  GOLD_BASE: 12, // antes 6 — doble de monedas
   GOLD_GROWTH_EXP: 0.92, // el oro crece MÁS LENTO que la vida enemiga
   GOLD_MULT_PER_LEVEL: 0.1, // mejora Oro
 

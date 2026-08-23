@@ -19,12 +19,31 @@ export function enemyDmg(screen: number): number {
   return B.ENEMY_DMG_BASE * Math.pow(B.ENEMY_DMG_GROWTH, screen - 1);
 }
 
-export function bossHP(screen: number): number {
-  return enemyHP(screen) * B.BOSS_HP_MULT;
-}
-
 export function isBossScreen(screen: number): boolean {
   return screen % B.BOSS_EVERY === 0;
+}
+
+// El boss final de mundo es el de la última fase de cada mundo (screen
+// múltiplo de BOSS_EVERY*PHASES_PER_WORLD) — el único que de verdad hace
+// reiniciar la run; los demás bosses de fase son "checkpoints".
+export function isWorldBossScreen(screen: number): boolean {
+  return isBossScreen(screen) && screen % (B.BOSS_EVERY * B.PHASES_PER_WORLD) === 0;
+}
+
+export function bossHP(screen: number): number {
+  const mult = isWorldBossScreen(screen) ? B.WORLD_BOSS_HP_MULT : B.PHASE_BOSS_HP_MULT;
+  return enemyHP(screen) * mult;
+}
+
+export function bossDmgMult(screen: number): number {
+  return isWorldBossScreen(screen) ? B.WORLD_BOSS_DMG_MULT : B.PHASE_BOSS_DMG_MULT;
+}
+
+// Primera pantalla de la fase (bloque de BOSS_EVERY pantallas) a la que
+// pertenece `screen` — el checkpoint al que se vuelve tras morir contra un
+// boss de fase (no el final de mundo).
+export function phaseStartScreenOf(screen: number): number {
+  return Math.floor((screen - 1) / B.BOSS_EVERY) * B.BOSS_EVERY + 1;
 }
 
 export function upgradeCost(id: UpgradeId, level: number): number {

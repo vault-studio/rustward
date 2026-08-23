@@ -3,10 +3,13 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { BALANCE as B, UPGRADE_IDS, type UpgradeId } from '../config/balance';
 import {
+  bossDmgMult,
   emeraldsPerBoss,
   enemyDmg,
   goldPerKill,
+  isWorldBossScreen,
   maxAffordable,
+  phaseStartScreenOf,
   playerStats,
   upgradeCost,
   NO_META,
@@ -184,13 +187,27 @@ export function createEngine(hooks: EngineHooks): Engine {
     // Ataques del enemigo.
     while (enemyTimer >= B.ENEMY_INTERVAL_MS && foeHP > 0 && status === 'playing') {
       enemyTimer -= B.ENEMY_INTERVAL_MS;
-      const raw = enemyDmg(screen) * (foe.isBoss ? B.BOSS_DMG_MULT : 1);
+      const raw = enemyDmg(screen) * (foe.isBoss ? bossDmgMult(screen) : 1);
       const damage = mitigatedDamage(raw, stats.flatDR);
       playerHP -= damage;
       pushEvent('player', damage, 'normal');
       if (playerHP <= 0) {
-        playerHP = 0;
-        status = 'dead';
+        if (isWorldBossScreen(screen)) {
+          // el boss final de mundo es el único que de verdad hace reiniciar.
+          playerHP = 0;
+          status = 'dead';
+        } else {
+          // checkpoint: te reagrupas al inicio de la fase con la vida a
+          // tope — oro, niveles y kills de la run no se tocan.
+          screen = phaseStartScreenOf(screen);
+          foe = spawnForScreen(screen);
+          foeHP = foe.maxHP;
+          playerHP = stats.maxHP;
+          attackTimer = 0;
+          enemyTimer = 0;
+          advanceTimer = 0;
+        }
+        return;
       }
     }
   }
