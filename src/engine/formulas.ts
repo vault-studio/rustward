@@ -38,6 +38,27 @@ export function bulkCost(id: UpgradeId, level: number, count: number): number {
   return total;
 }
 
+// Etiqueta mínima de lo que da CADA nivel de una mejora (independiente del
+// nivel actual y del modo de compra) — se muestra como badge en su botón.
+export function upgradeEffectLabel(id: UpgradeId): string {
+  switch (id) {
+    case 'attack':
+      return `+${B.ATK_PER_LEVEL}`;
+    case 'defense':
+      return `+${B.HP_PER_LEVEL}`;
+    case 'speed':
+      return `+${Math.round(B.SPEED_PER_LEVEL * 100)}%`;
+    case 'luck':
+      return `+${Math.round(B.CRIT_PER_LEVEL * 100)}%`;
+    case 'gold':
+      return `+${Math.round(B.GOLD_MULT_PER_LEVEL * 100)}%`;
+    case 'emerald':
+      return `+${Math.round(B.EMERALD_MULT_PER_LEVEL * 100)}%`;
+    case 'execution':
+      return `+${(B.EXEC_PER_LEVEL * 100).toFixed(1)}%`;
+  }
+}
+
 // Máximo de niveles comprables con `gold` a partir de `level`.
 export function maxAffordable(id: UpgradeId, level: number, gold: number): number {
   let count = 0;

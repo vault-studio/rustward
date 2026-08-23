@@ -1,4 +1,5 @@
 import type { UpgradeId } from '../../config/balance';
+import { upgradeEffectLabel } from '../../engine/formulas';
 import { useT } from '../../i18n';
 import { formatNumber } from '../../utils/formatNumber';
 import { UpgradeIcon } from '../../assets/svg/icons';
@@ -35,6 +36,7 @@ export default function UpgradeButton({
     >
       <span className="upg-icon">
         <UpgradeIcon id={id} />
+        <span className="upg-effect">{upgradeEffectLabel(id)}</span>
       </span>
       <span className="upg-name">{t(`upgrades.${id}`)}</span>
       <span className="upg-lvl">
