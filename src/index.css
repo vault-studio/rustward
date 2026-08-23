@@ -1358,6 +1358,12 @@ button {
   -webkit-overflow-scrolling: touch;
   border: 1px solid #3a332a;
   border-radius: 8px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Edge/IE viejos */
+}
+
+.worldmap-scroll::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Edge nuevo */
 }
 
 .worldmap-stage {
@@ -1395,21 +1401,23 @@ button {
 }
 
 .worldmap-path.current {
-  stroke: var(--emerald);
+  stroke: var(--amber);
   opacity: 0.95;
 }
 
-/* punto de partida de la fase 1 (world.start): círculo verde brillante,
+/* punto de partida de la fase 1 (world.start): círculo ámbar brillante,
    igual estilo que la referencia. Para fase > 1 el inicio ya es la zona
-   anterior, que se dibuja como zona "done" — no hace falta otro marcador. */
+   anterior, que se dibuja como zona "done" — no hace falta otro marcador.
+   (El punto verde queda solo para la pantalla exacta donde estás ahora
+   mismo, así no se confunde con "aquí empieza el camino".) */
 .worldmap-start {
   position: absolute;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--emerald);
-  border: 3px solid #eafff3;
-  box-shadow: 0 0 14px 4px rgba(63, 191, 127, 0.55);
+  background: var(--amber);
+  border: 3px solid #fff2cc;
+  box-shadow: 0 0 14px 4px rgba(240, 178, 60, 0.55);
   transform: translate(-50%, -50%);
 }
 
