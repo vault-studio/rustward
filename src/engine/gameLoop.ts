@@ -7,9 +7,7 @@ import {
   emeraldsPerBoss,
   enemyDmg,
   goldPerKill,
-  isWorldBossScreen,
   maxAffordable,
-  phaseStartScreenOf,
   playerStats,
   upgradeCost,
   NO_META,
@@ -197,21 +195,11 @@ export function createEngine(hooks: EngineHooks): Engine {
       playerHP -= damage;
       pushEvent('player', damage, 'normal');
       if (playerHP <= 0) {
-        if (isWorldBossScreen(screen)) {
-          // el boss final de mundo es el único que de verdad hace reiniciar.
-          playerHP = 0;
-          status = 'dead';
-        } else {
-          // checkpoint: te reagrupas al inicio de la fase con la vida a
-          // tope — oro, niveles y kills de la run no se tocan.
-          screen = phaseStartScreenOf(screen);
-          foe = spawnForScreen(screen);
-          foeHP = foe.maxHP;
-          playerHP = stats.maxHP;
-          attackTimer = 0;
-          enemyTimer = 0;
-          advanceTimer = 0;
-        }
+        // Cualquier muerte (boss de fase, boss de mundo o bicho normal)
+        // detiene la run y deja elegir: revivir, mundo del progreso, o
+        // primer mundo. Nunca se reinicia sola.
+        playerHP = 0;
+        status = 'dead';
         return;
       }
     }
