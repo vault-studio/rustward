@@ -36,11 +36,13 @@ export default function UpgradeButton({
     >
       <span className="upg-icon">
         <UpgradeIcon id={id} />
-        <span className="upg-effect">{upgradeEffectLabel(id)}</span>
       </span>
       <span className="upg-name">{t(`upgrades.${id}`)}</span>
-      <span className="upg-lvl">
-        {t('upgrades.level')} {level}
+      <span className="upg-lvl-row">
+        <span className="upg-lvl">
+          {t('upgrades.level')} {level}
+        </span>
+        <span className="upg-effect">{upgradeEffectLabel(id)}</span>
       </span>
       <span className="upg-cost">{formatNumber(cost)}</span>
     </button>

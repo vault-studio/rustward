@@ -749,17 +749,35 @@ button {
 }
 
 .upg-icon {
-  position: relative;
   display: flex;
   color: var(--rust-light);
 }
 
-/* badge minimalista: lo que da CADA nivel de la mejora, sin ocupar línea
-   propia — solo el número, el icono ya dice de qué stat se trata. */
+.upg-name {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 8px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.upg-lvl-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.upg-lvl {
+  font-size: 9px;
+  color: var(--amber);
+}
+
+/* badge minimalista: lo que da CADA nivel de la mejora, junto al nivel
+   actual — solo el número, el icono ya dice de qué stat se trata. */
 .upg-effect {
-  position: absolute;
-  top: -5px;
-  right: -8px;
   padding: 0 3px;
   background: var(--concrete);
   border: 1px solid #4a4034;
@@ -774,22 +792,6 @@ button {
 
 .upg:disabled .upg-effect {
   opacity: 0.6;
-}
-
-.upg-name {
-  max-width: 100%;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-size: 8px;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  opacity: 0.75;
-}
-
-.upg-lvl {
-  font-size: 9px;
-  color: var(--amber);
 }
 
 .upg-cost {
@@ -820,8 +822,6 @@ button {
 
   .upg-effect {
     font-size: 8px;
-    top: -6px;
-    right: -10px;
   }
 }
 
