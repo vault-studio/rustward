@@ -83,9 +83,8 @@ export const BALANCE = {
   GOLD_GROWTH_EXP: 0.92, // el oro crece MÁS LENTO que la vida enemiga
   GOLD_MULT_PER_LEVEL: 0.1, // mejora Oro
 
-  EMERALD_BASE: 1, // por boss
-  EMERALD_TIER_BONUS: 1, // +1 cada N bosses
-  EMERALD_TIER_EVERY_BOSSES: 5,
+  // Esmeraldas por boss = número de mundo (Mundo 1 → 1, Mundo 2 → 2...),
+  // igual para cualquier boss dentro de ese mundo (de fase o final).
   EMERALD_MULT_PER_LEVEL: 0.08, // mejora Esmeralda
 
   // === REVIVIR (sink de esmeraldas en la muerte) ===

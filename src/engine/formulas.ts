@@ -123,12 +123,12 @@ export function goldPerKill(screen: number, goldMult: number): number {
   );
 }
 
-// Esmeraldas al matar el boss de la pantalla `screen` (múltiplo de BOSS_EVERY).
+// Esmeraldas al matar el boss de la pantalla `screen` (múltiplo de
+// BOSS_EVERY) = número de mundo (1-based) — cualquier boss del Mundo 1 da
+// 1, cualquiera del Mundo 2 da 2, etc., sea de fase o el final de mundo.
 export function emeraldsPerBoss(screen: number, emeraldMult: number): number {
-  const bossIndex = Math.floor(screen / B.BOSS_EVERY); // 1º boss = 1
-  const tier = Math.floor((bossIndex - 1) / B.EMERALD_TIER_EVERY_BOSSES);
-  const base = B.EMERALD_BASE + tier * B.EMERALD_TIER_BONUS;
-  return Math.max(1, Math.floor(base * emeraldMult));
+  const worldNum = worldIndexOf(screen) + 1;
+  return Math.max(1, Math.floor(worldNum * emeraldMult));
 }
 
 // === MUNDO / FASE / PANTALLA ===
