@@ -326,15 +326,60 @@ button {
   position: absolute;
   left: 6%;
   bottom: 13%;
-  width: clamp(64px, 17vw, 105px);
+  width: clamp(70px, 19vw, 118px);
   z-index: 3;
   animation: bob 0.62s ease-in-out infinite;
 }
 
-.char-wrap svg {
+.char-wrap svg,
+.char-wrap img {
   width: 100%;
   height: auto;
   display: block;
+  -webkit-user-drag: none;
+}
+
+/* arte pintado: además del bob vertical del wrapper, un leve balanceo de
+   peso (rotación + micro-desplazamiento) vende la zancada con un solo frame. */
+.char-painted {
+  transform-origin: 50% 100%;
+  animation: charwalk 0.62s ease-in-out infinite;
+}
+
+@keyframes charwalk {
+  0%,
+  100% {
+    transform: rotate(-1.4deg) translateX(-1px);
+  }
+  50% {
+    transform: rotate(1.4deg) translateX(1px);
+  }
+}
+
+/* sombra de contacto: se encoge y aclara cuando el personaje "despega" en
+   el bob, y se planta al tocar suelo — sensación de peso y avance. */
+.char-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -4%;
+  width: 68%;
+  height: 14%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55) 0%, transparent 72%);
+  transform: translateX(-50%);
+  animation: shadowpulse 0.62s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes shadowpulse {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: translateX(-50%) scaleX(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateX(-50%) scaleX(0.8);
+  }
 }
 
 @keyframes bob {
@@ -384,7 +429,8 @@ button {
 }
 
 /* flash al recibir daño */
-.char-wrap.hit svg {
+.char-wrap.hit svg,
+.char-wrap.hit img {
   animation: charhit 0.2s ease-out;
 }
 
@@ -400,7 +446,8 @@ button {
 }
 
 /* celebración al subir de tier de equipo */
-.char-wrap.tierup svg {
+.char-wrap.tierup svg,
+.char-wrap.tierup img {
   animation: tierup 1.4s ease-out;
 }
 
@@ -481,7 +528,9 @@ button {
 }
 
 .char-wrap.dead .leg,
-.char-wrap.dead .scarf {
+.char-wrap.dead .scarf,
+.char-wrap.dead img,
+.char-wrap.dead .char-shadow {
   animation: none;
 }
 
@@ -502,15 +551,28 @@ button {
   gap: 4px;
 }
 
-.enemy-wrap svg {
+.enemy-wrap svg,
+.enemy-wrap img {
   width: 100%;
   height: auto;
   display: block;
+  -webkit-user-drag: none;
 }
 
 .enemy-wrap .sprite {
   width: 100%;
   animation: hitflash 0.16s ease-out;
+}
+
+.enemy-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -6%;
+  width: 62%;
+  height: 13%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.5) 0%, transparent 72%);
+  transform: translateX(-50%);
+  z-index: -1;
 }
 
 @keyframes hitflash {
