@@ -17,7 +17,9 @@ export const BALANCE = {
   ENEMIES_PER_SCREEN: 1,
 
   // === MUNDO / FASE / PANTALLA ===
-  PHASES_PER_WORLD: 15, // fases por mundo; cada fase = BOSS_EVERY pantallas
+  // 5 fases por mundo, una por cada zona de boss dibujada en su mapa (ver
+  // config/worlds.ts) — cada fase = BOSS_EVERY pantallas.
+  PHASES_PER_WORLD: 5,
 
   // === BOSS ===
   BOSS_EVERY: 10, // pantalla múltiplo de N → boss (== pantallas por fase)
