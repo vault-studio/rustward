@@ -223,13 +223,27 @@ button {
   border-color: var(--rust);
 }
 
+/* ============ ZONA DE JUEGO (mapa opcional + stage) ============ */
+/* El mapa de mundo ya no es una ventana flotante: se despliega AQUÍ,
+   empujando el stage hacia abajo sin ocultarlo — el juego se ve y sigue
+   funcionando debajo. Si mapa+stage no caben en la pantalla, esta zona
+   hace scroll (el HUD arriba y la barra de mejoras abajo quedan fijos). */
+.play-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 /* ============ STAGE + PARALLAX ============ */
 .stage {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 280px;
   position: relative;
   overflow: hidden;
   background: linear-gradient(#1d1812 0%, #17130d 55%, #120f09 100%);
-  min-height: 0;
 }
 
 .layer {
@@ -1314,10 +1328,63 @@ button {
   border-color: var(--rust-light);
 }
 
-/* ============ MAPA DE MUNDO ============ */
+/* ============ MAPA DE MUNDO — panel mecánico, no ventana flotante ============ */
+.worldmap-inline {
+  flex: none;
+  width: 100%;
+  transform-origin: top;
+  overflow: hidden;
+}
+
+.worldmap-inline.is-open {
+  animation: mapMechOpen 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.worldmap-inline.is-closing {
+  animation: mapMechClose 0.3s cubic-bezier(0.5, 0, 1, 1) both;
+}
+
+@keyframes mapMechOpen {
+  0% {
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    clip-path: inset(0 0 0% 0);
+  }
+}
+
+@keyframes mapMechClose {
+  0% {
+    clip-path: inset(0 0 0% 0);
+  }
+  100% {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+/* destello de "encendido" al desplegarse, como un panel de control que
+   arranca — se anima aparte del clip-path para no interferir con él. */
+.worldmap-inline.is-open .worldmap-stage {
+  animation: mapPowerOn 0.35s ease-out both;
+}
+
+@keyframes mapPowerOn {
+  0% {
+    filter: brightness(3) saturate(0.4);
+  }
+  100% {
+    filter: none;
+  }
+}
+
 .worldmap-panel {
-  max-width: min(94vw, 480px);
+  width: 100%;
+  max-width: none;
   padding-bottom: 4px;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.75);
 }
 
 .map-header {
@@ -1351,7 +1418,7 @@ button {
 }
 
 .worldmap-scroll {
-  max-height: 62dvh;
+  max-height: 38dvh;
   margin: 0 10px;
   overflow-y: auto;
   overflow-x: hidden;

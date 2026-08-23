@@ -47,7 +47,8 @@ function playEventSfx(events: DamageEvent[]): void {
 export default function GameScreen() {
   const t = useT();
   const [shopOpen, setShopOpen] = useState(false);
-  const [mapOpen, setMapOpen] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false); // controla la animación (abre/cierra)
+  const [mapMounted, setMapMounted] = useState(false); // presencia real en el DOM
   const [statsOpen, setStatsOpen] = useState(false);
   const [offline, setOffline] = useState<OfflineSummary | null>(null);
   const [buyMode, setBuyMode] = useState<BuyMode>(1);
@@ -61,6 +62,7 @@ export default function GameScreen() {
   const charHitTimer = useRef(0);
   const prevTier = useRef(0);
   const tierUpTimer = useRef(0);
+  const mapCloseTimer = useRef(0);
 
   const engineRef = useRef<Engine | null>(null);
   if (!engineRef.current) {
@@ -231,6 +233,23 @@ export default function GameScreen() {
   const cycleBuyMode = () =>
     setBuyMode((m) => (m === 1 ? 10 : m === 10 ? 'max' : 1));
 
+  // El mapa es un panel mecánico empotrado, no una ventana flotante — se
+  // queda montado unos ms de más al cerrar para que termine su animación
+  // de repliegue antes de desaparecer del todo.
+  const openMap = () => {
+    initAudio();
+    window.clearTimeout(mapCloseTimer.current);
+    sfx.mapOpen();
+    setMapMounted(true);
+    requestAnimationFrame(() => setMapOpen(true));
+  };
+
+  const closeMap = () => {
+    sfx.mapClose();
+    setMapOpen(false);
+    mapCloseTimer.current = window.setTimeout(() => setMapMounted(false), 320);
+  };
+
   const showTapHint = !tapHintSeen && snap.status === 'playing' && !offline;
 
   // Tier de skin; ?skin=N permite previsualizar skins en desarrollo.
@@ -242,32 +261,38 @@ export default function GameScreen() {
 
   return (
     <div className="game-root" onContextMenu={(e) => e.preventDefault()}>
-      <Hud
-        snap={snap}
-        onOpenShop={() => setShopOpen(true)}
-        onOpenMap={() => setMapOpen(true)}
-      />
-      <main
-        className={`stage ${snap.advancing ? 'advancing' : ''} ${
-          snap.isBoss && !snap.advancing ? 'boss-fight' : ''
-        } ${shaking ? 'shake' : ''}`}
-        onPointerDown={handleStageTap}
-      >
-        <Background />
-        <Character
-          dead={snap.status === 'dead'}
-          tier={tier}
-          hit={charHit}
-          tierUp={tierUpFlash}
-        />
-        {!snap.advancing && snap.enemyHP > 0 && <Enemy snap={snap} />}
-        <DamageLayer />
-        {tierUpFlash && <div className="tierup-banner">{t('hints.tier_up')}</div>}
-        {snap.isBoss && !snap.advancing && snap.status === 'playing' && (
-          <div className="boss-banner">☠ {t('hud.boss')}</div>
+      <Hud snap={snap} onOpenShop={() => setShopOpen(true)} onOpenMap={openMap} />
+      <div className="play-area">
+        {mapMounted && (
+          <WorldMap
+            currentScreen={snap.screen}
+            bestScreen={bestScreen}
+            isOpen={mapOpen}
+            onClose={closeMap}
+          />
         )}
-        {showTapHint && <div className="tap-hint">{t('hints.tap')}</div>}
-      </main>
+        <main
+          className={`stage ${snap.advancing ? 'advancing' : ''} ${
+            snap.isBoss && !snap.advancing ? 'boss-fight' : ''
+          } ${shaking ? 'shake' : ''}`}
+          onPointerDown={handleStageTap}
+        >
+          <Background />
+          <Character
+            dead={snap.status === 'dead'}
+            tier={tier}
+            hit={charHit}
+            tierUp={tierUpFlash}
+          />
+          {!snap.advancing && snap.enemyHP > 0 && <Enemy snap={snap} />}
+          <DamageLayer />
+          {tierUpFlash && <div className="tierup-banner">{t('hints.tier_up')}</div>}
+          {snap.isBoss && !snap.advancing && snap.status === 'playing' && (
+            <div className="boss-banner">☠ {t('hud.boss')}</div>
+          )}
+          {showTapHint && <div className="tap-hint">{t('hints.tap')}</div>}
+        </main>
+      </div>
       <UpgradeBar
         snap={snap}
         buyMode={buyMode}
@@ -285,13 +310,6 @@ export default function GameScreen() {
       )}
       {shopOpen && <MetaShop onClose={() => setShopOpen(false)} />}
       {statsOpen && <StatsModal snap={snap} onClose={() => setStatsOpen(false)} />}
-      {mapOpen && (
-        <WorldMap
-          currentScreen={snap.screen}
-          bestScreen={bestScreen}
-          onClose={() => setMapOpen(false)}
-        />
-      )}
       {offline && (
         <OfflineModal summary={offline} onClose={() => setOffline(null)} />
       )}

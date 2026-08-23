@@ -91,4 +91,12 @@ export const sfx = {
     tone(523, 0.1, 'square', 0.06, undefined, 0.09);
     tone(784, 0.2, 'square', 0.055, undefined, 0.18);
   },
+  mapOpen: () => {
+    // panel mecánico bajando + clunk de anclaje al final
+    tone(180, 0.14, 'sawtooth', 0.05, 70);
+    tone(60, 0.1, 'square', 0.07, 40, 0.16);
+  },
+  mapClose: () => {
+    tone(90, 0.1, 'square', 0.06, 200);
+  },
 };
